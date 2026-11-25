@@ -966,6 +966,7 @@ function ach(id){if(META.ach[id])return;const a=ACHS.find(x=>x.id===id);if(!a)re
 // GERADO por ferramentas/novidades.js a partir de notas_de_versao.md. Não edite à mão: edite o .md e rode o montar.js.
 // Mais novas primeiro. A versão é calculada por versaoJogo() em src/30-telas-2.js.
 const NOVIDADES=[
+ {"data":"2026-11-25","titulo":"Conte o que achou","html":"<ul><li>No menu e no fim de cada partida há um botão novo: <b>💬 Deixar sua opinião</b>.</li><li>Ele abre um formulário curto, de 2 a 3 minutos. A versão do jogo e até onde você chegou já vêm preenchidas.</li><li>Elogios, sugestões e bugs são bem-vindos. É assim que a gente decide o que vem a seguir.</li></ul>"},
  {"data":"2026-11-25","titulo":"Modificador experimental: Covil","html":"<ul><li>Em <b>🎯 Desafio diário e modificadores</b> há um modificador novo, <b>📯 Covil</b> (🧪 experimental, sem bônus de pérolas).</li><li>Com ele, antes de cada chefe aparece um <b>covil</b> no mapa. Fique 1,5 s dentro para <b>chamar o chefe na hora</b> e ganhar pérolas no fim da partida: quanto mais tempo sobrava no relógio, mais pérolas. Se preferir caçar e se preparar, ignore: o chefe vem pelo relógio, como sempre.</li><li>Conte para a gente quando valeu a pena chamar cedo e quando não valeu.</li></ul>"},
  {"data":"2026-11-25","titulo":"Um Infinito que muda a cada ciclo","html":"<ul><li><b>O Infinito agora tem situações.</b> Cada bioma do Infinito chega com uma <b>condição ecológica</b> e um <b>ritmo</b>, sorteados como nas descidas da Campanha, mas sem parar o jogo para escolher.</li><li>Os <b>marcos</b> também aparecem: carcaças, fontes termais, bolsões de muda, nuvens de neve e o <b>Território</b> do Alfa.</li><li>No <b>Continuar no Infinito</b>, que fica sempre na Fossa, cada chefe principal vencido abre um ciclo novo, com outra condição.</li><li>A faixa de entrada, o HUD, o selo da estirpe e a pausa mostram tudo como na Campanha.</li></ul>"},
  {"data":"2026-11-25","titulo":"A história da sua partida","html":"<ul><li><b>Cada partida vira uma história.</b> No fim da Campanha, vitória ou derrota, a aba <b>📖 História</b> conta uma linha por bioma: por onde você desceu, a condição e o ritmo, o Alfa derrotado, os chefes que chegaram famintos ou sem os ninhos, o que você assimilou, o que descobriu e as espécies que rarearam.</li><li>Os números de sempre continuam na aba <b>📊 Números</b>.</li><li><b>Estirpe à vista.</b> Quando a condição do bioma deixa todos os elites com os mesmos afixos (Estirpe Blindada, Voraz ou Faminta), um selo embaixo do minimapa mostra quais são. Assim dá para escolher as cartas contra eles.</li></ul>"},
@@ -4928,7 +4929,7 @@ function menu(){
   <div class="drow"><button class="tool" id="daily">🎯 Desafio de hoje</button><span class="small" id="drec">Infinito · Normal · mesmas cartas, partes e criaturas para todo mundo hoje${dailyBest()?' · seu melhor: '+fmt(dailyBest()):''}</span></div>
   <div class="seg mods" role="group" aria-label="Modificadores (valem para Jogar)">${MODS.map(m=>`<button class="segb" data-mod="${m.id}" aria-pressed="${!!MODS_ON[m.id]}" title="${m.d}">${m.ic} ${m.n} ${m.b?'+'+m.b+'%':'🧪'/* [etapa-75] experimental, sem bônus */}</button>`).join('')}</div>
   <div class="small" id="mdb" aria-live="polite"></div></details>
- <div class="tools mtools"><button class="tool" id="lab">🧪 Laboratório</button><button class="tool" id="achv">🏅 Conquistas ${nAch}/${ACHS.length}</button><button class="tool" id="codex">📖 Códex</button><button class="tool" id="opts">⚙️ Opções</button><button class="tool" id="how">❓ Como jogar</button><button class="tool" id="nov">📜 Novidades${novPendente()?'<span class="ndot" role="img" aria-label="tem novidade"></span>':''}</button>${FS.can()?'<button class="tool" id="fs" data-fs></button>':''}</div>
+ <div class="tools mtools"><button class="tool" id="lab">🧪 Laboratório</button><button class="tool" id="achv">🏅 Conquistas ${nAch}/${ACHS.length}</button><button class="tool" id="codex">📖 Códex</button><button class="tool" id="opts">⚙️ Opções</button><button class="tool" id="how">❓ Como jogar</button><button class="tool" id="nov">📜 Novidades${novPendente()?'<span class="ndot" role="img" aria-label="tem novidade"></span>':''}</button>${opiniaoBtn()/* [etapa-76] */}${FS.can()?'<button class="tool" id="fs" data-fs></button>':''}</div>
  ${store.get('carc_opts_seen')?'':'<div class="hint1">Ajuste conforto, áudio e controles em ⚙️ Opções</div>'}
  ${devKind()==='touch'&&innerHeight>innerWidth?'<div class="hint1 rot">📱 Gire o celular para jogar melhor</div>':''/* [etapa-56] */}
  `);
@@ -4944,6 +4945,7 @@ function menu(){
  $('#lab').onclick=lab;$('#achv').onclick=achScreen;$('#codex').onclick=()=>codexScreen();/* [etapa-29] */$('#opts').onclick=()=>openSettings('menu'); // [etapa-3]
  $('#how').onclick=()=>howTo(0);
  $('#nov').onclick=novidadesScreen; // [novidades]
+ wireOpiniao(); /* [etapa-76] */
  {const b=$('#fs');if(b)b.onclick=()=>FS.toggle();} // [etapa-33]
  // [etapa-31] desafio diário e modificadores
  {const dm=ov.querySelector('.dmods'),mdb=()=>{const b=modBonus(MODS_ON),on=MODS.filter(m=>MODS_ON[m.id]);$('#mdb').textContent=on.length?`Ativos ao Jogar: ${on.map(m=>m.n).join(', ')} · pérolas x${(1+b).toFixed(2).replace('.',',')}${b>=1?' (teto)':''}`:'Nenhum modificador: partida normal. Os modificadores não valem no desafio diário.';};mdb();
@@ -5579,13 +5581,14 @@ function gameOver(){
  let rec='';
  if(run.daily){if(time>dailyBest()){DAILY.d=todaySeed();DAILY.best=time;store.set('carc_daily',JSON.stringify(DAILY));rec='<div class="sub" style="color:#ffd166">🎯 Novo recorde do desafio de hoje!</div>';}} // [etapa-31] recorde próprio (não mexe no do Infinito)
  else if(run.mode==='inf'&&!Object.keys(run.mods||{}).length){const k='carc2_inf_'+run.diff,prev=+(store.get(k)||0);if(time>prev){store.set(k,String(time));rec='<div class="sub" style="color:#ffd166">🏆 Novo recorde no Infinito!</div>';}}
+ opiniaoRegistrar(false); /* [etapa-76] */
  const lr=infRecord();/* [etapa-63] */const pr=awardPearls();
  // [etapa-1] S7 a tela atrasada só abre se ainda for este mesmo game over
  const runRef=run;
  setTimeout(()=>{if(state!=='over'||run!==runRef)return;// [etapa-10] tom encorajador; mostra o que melhorou; três botões com o mesmo peso visual; sem contagem regressiva nem auto-início
  show(fimLayout(`<h2>A evolução continua</h2><div class="sub">Você foi devorado desta vez — mas seu DNA aprendeu algo.</div>${deathCauseHTML()}${rec}${pr}${labPathHTML(lr)/* [etapa-63] */}${nearAchHTML()}${breakBoxHTML()}`,
- `<div class="row"><button class="btn alt" id="again" data-autofocus>Jogar de novo</button><button class="btn alt" id="lb">🧪 Laboratório</button><button class="btn alt" id="mn">Menu</button></div>`));/* [etapa-73] */
- $('#again').onclick=()=>startRun(run.mode,run.diff,{daily:run.daily});$('#mn').onclick=menu;$('#lb').onclick=lab;wireBreakBox();wireFinal();/* [etapa-73] */},700); // [etapa-2/10]
+ `<div class="row"><button class="btn alt" id="again" data-autofocus>Jogar de novo</button><button class="btn alt" id="lb">🧪 Laboratório</button><button class="btn alt" id="mn">Menu</button></div><div class="row">${opiniaoBtn()/* [etapa-76] */}</div>`));/* [etapa-73] */
+ $('#again').onclick=()=>startRun(run.mode,run.diff,{daily:run.daily});$('#mn').onclick=menu;$('#lb').onclick=lab;wireBreakBox();wireFinal();/* [etapa-73] */wireOpiniao();/* [etapa-76] */},700); // [etapa-2/10]
 }
 function win(){
  const infNew=!infOpen();/* [etapa-51] primeira vitória destrava o Infinito */
@@ -5594,16 +5597,48 @@ function win(){
  ach('carcinizacao');if(run.diff>=1)ach('dificil');if(run.diff>=2)ach('abissal');
  const k='carc2_camp_'+run.diff,prev=store.get(k);let nr=false;if(!prev||time<+prev){store.set(k,String(time));nr=true;}
  snd(523,.2,'triangle',.06,0,'ui');setTimeout(()=>snd(659,.2,'triangle',.06,0,'ui'),180);setTimeout(()=>snd(784,.4,'triangle',.06,0,'ui'),360);
+ opiniaoRegistrar(true); /* [etapa-76] */
  const pr=awardPearls();
  show(fimLayout(`<h1 style="font-size:clamp(36px,7vw,70px)">CARCINIZAÇÃO<br>COMPLETA</h1><div class="evo">${STAGES[P.stage].ic}</div>${mapHTML(5,-1)}<div class="sub">Você atravessou os 5 biomas e derrotou o Caranguejo Ancestral.${nr?'<br><b style="color:#ffd166">🏆 Novo recorde!</b>':''}${infNew?'<br><b class="infnew" role="status">♾️ Modo Infinito desbloqueado!</b>'/* [etapa-51] */:''}</div>
  ${pr}${nearAchHTML()}${breakBoxHTML()}`,`<div class="row"><button class="btn purple" id="inf" data-autofocus>♾️ Continuar no Infinito</button><button class="btn" id="again">Jogar de novo</button><button class="btn alt" id="mn">Menu</button></div>
- <div class="small">No Infinito, você mantém tudo o que conquistou e a dificuldade continua subindo até o fim.</div>`));/* [etapa-73] */
+ <div class="small">No Infinito, você mantém tudo o que conquistou e a dificuldade continua subindo até o fim.</div><div class="row">${opiniaoBtn()/* [etapa-76] */}</div>`));/* [etapa-73] */
  // [etapa-2]
- $('#inf').onclick=continueInfinite;wireBreakBox();wireFinal();/* [etapa-73] */ // [etapa-10]
+ $('#inf').onclick=continueInfinite;wireBreakBox();wireFinal();/* [etapa-73] */wireOpiniao();/* [etapa-76] */ // [etapa-10]
  $('#again').onclick=()=>startRun(run.mode,run.diff,{daily:run.daily});$('#mn').onclick=menu;
 }
 
 
+// [etapa-76] Formulário de opinião (Google Forms) com versão, data e partida pré-preenchidas.
+// Os rótulos precisam bater exatamente com as opções do formulário. A nota (entry.1051632324) fica em branco de propósito.
+const OPINIAO_URL='https://docs.google.com/forms/d/e/1FAIpQLSccWs9X3LdqBj3aINSLg3a-zcUtOcLczELFN2Qf5UXR6ZoHTw/viewform';
+const OPINIAO_CAMPOS={bioma:'entry.1007205482',dif:'entry.281190512',controle:'entry.2014866317',versao:'entry.167672222',data:'entry.1817721664'};
+const OPINIAO_KEY='carc_opiniao'; // {m:alcance máximo (0-4 bioma, 5 zerou, 6 Infinito), d:última dificuldade}
+const OPINIAO_CTRL={kb:'Teclado',touch:'Toque (celular/tablet)',pad:'Controle'};
+function opiniaoSalvo(){let o=null;try{o=JSON.parse(store.get(OPINIAO_KEY)||'null');}catch(e){o=null;}return o&&typeof o==='object'?o:{};}
+// chamada no fim da partida (derrota ou vitória): guarda até onde a pessoa já chegou
+function opiniaoRegistrar(venceu){
+ if(!run)return;
+ const m=run.mode==='inf'||run.cont?6:venceu?5:Math.max(0,Math.min(run.biome|0,4));
+ const o=opiniaoSalvo();o.m=Math.max(o.m==null?-1:+o.m,m);o.d=run.diff|0;
+ store.set(OPINIAO_KEY,JSON.stringify(o));
+}
+function opiniaoAlcance(){const o=opiniaoSalvo();let m=o.m==null?-1:+o.m;if(store.get('carc2_won'))m=Math.max(m,5);return m;}
+function opiniaoLink(){
+ const p=new URLSearchParams({usp:'pp_url'}),m=opiniaoAlcance(),o=opiniaoSalvo();
+ if(m>=0)p.set(OPINIAO_CAMPOS.bioma,m===6?'Joguei o Infinito':m===5?'Zerei a Campanha':BIOMES[m].name);
+ const d=o.d!=null?+o.d:selDiff;if(DIFFS[d])p.set(OPINIAO_CAMPOS.dif,DIFFS[d].name);
+ p.set(OPINIAO_CAMPOS.controle,OPINIAO_CTRL[devKind()]||'Teclado');
+ p.set(OPINIAO_CAMPOS.versao,versaoJogo().v);
+ const n=NOVIDADES[0];if(n&&n.data)p.set(OPINIAO_CAMPOS.data,n.data); // o campo Data do Forms espera AAAA-MM-DD
+ return OPINIAO_URL+'?'+p.toString();
+}
+const opiniaoBtn=(cls='tool')=>`<button class="${cls}" data-opiniao>💬 Deixar sua opinião</button>`;
+// liga os botões [data-opiniao] da tela atual; se o navegador bloquear a aba nova, mostra o link para copiar
+function wireOpiniao(){for(const b of ov.querySelectorAll('[data-opiniao]'))b.onclick=()=>{
+ const url=opiniaoLink();let w=null;try{w=window.open(url,'_blank');}catch(e){w=null;}
+ if(w){try{w.opener=null;}catch(e){}return;}
+ if(b.nextElementSibling&&b.nextElementSibling.classList.contains('oplink'))return;
+ b.insertAdjacentHTML('afterend',`<div class="small oplink">Não deu para abrir uma aba nova. Abra este link: <a href="${url}" target="_blank" rel="noopener">formulário de opinião</a></div>`);fitOverlay();};}
 /* ================= Loop ================= */
 let last=performance.now();
 // [etapa-1] B2 qualidade adaptativa: mede o tempo de TRABALHO do quadro (update+render), não o intervalo do rAF,
