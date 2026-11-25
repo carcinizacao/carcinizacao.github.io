@@ -899,7 +899,7 @@ const UPGRADES=[
  {id:'adapt',sec:'prof',ic:'🌊',n:'Adaptação à Pressão',d:'As correntes do Infinito crescem 6% mais devagar por nível',max:5,cost:[400,700,1100,1600,2200],lay:[1,2,3,4,5]},
  {id:'metab',sec:'prof',ic:'🫀',n:'Metabolismo Abissal',d:'+15% de DNA por nível no Infinito depois dos 20 min',max:3,cost:[500,900,1400],lay:[2,3,4]},
  {id:'linhagem',sec:'prof',ic:'📜',n:'Linhagem Antiga',d:'Começa o Infinito com 3 níveis de cartas contínuas (dano, vida e ritmo) por nível',max:3,cost:[600,1100,1700],lay:[2,4,5]}, // [etapa-64]
- {id:'mudaE',sec:'prof',ic:'🫧',n:'Muda de Emergência',d:'Uma vez por partida no Infinito, ao morrer, volte com 30% da vida (50% no nível 2)',max:2,cost:[800,1500],lay:[3,5]},
+ {id:'mudaE',sec:'prof',ic:'💧',n:'Muda de Emergência',d:'Uma vez por partida no Infinito, ao morrer, volte com 30% da vida (50% no nível 2)',max:2,cost:[800,1500],lay:[3,5]},
 ];
 /* [etapa-63] camadas da Profundidade: minutos de recorde no Infinito (qualquer dificuldade) que abrem cada uma */
 const LAYERS=[10,20,30,45,60];
@@ -908,6 +908,8 @@ const upSec=u=>u.sec||'base';
 const infLayer=()=>LAYERS.filter(m=>(META.infBest||0)>=m*60).length; // camadas abertas (0 a 5)
 const upLock=(u,l)=>u.lay&&l<u.max&&u.lay[l]>infLayer()?u.lay[l]:0; // camada que falta para o próximo nível (0 = livre)
 const ACHS=[
+ {id:'cv_muco',ic:'💧',n:'Muco Engolido',d:'Vença um chefe adaptado com Muco',p:50},{id:'cv_tentaculos',ic:'🦑',n:'Corta-Tentáculos',d:'Vença um chefe adaptado com Tentáculos Longos',p:50},/* [etapa-66] Rainha Vermelha */
+ {id:'cv_cardume',ic:'🦈',n:'Isca Viva',d:'Vença um chefe adaptado como Predador de Cardume',p:50},{id:'cv_frio',ic:'❄️',n:'Degelo',d:'Vença um chefe adaptado com Sangue Frio',p:50},
  {id:'abismo',ic:'🌑',n:'Sem Medo do Escuro',d:'Chegue à Zona Abissal',p:40},
  {id:'divergente',ic:'🧩',n:'Quimera',d:'Preencha os 4 encaixes de partes numa partida',p:30},
  {id:'elites',ic:'⚔️',n:'Caçador de Elites',d:'Derrote 25 elites numa partida',p:40},
@@ -937,6 +939,7 @@ let META=(()=>{try{const m=JSON.parse(store.get('carc3_meta')||'{}');return Obje
  if(!META||typeof META!=='object'||Array.isArray(META))META={};
  META.up=obj(META.up);META.forms=obj(META.forms);META.ach=obj(META.ach);META.parts=obj(META.parts);
  META.codex=obj(META.codex);for(const k of ['c','m','p','e'/* [etapa-57] condições */]){META.codex[k]=obj(META.codex[k]);for(const id in META.codex[k])if(META.codex[k][id]!==1)delete META.codex[k][id];} // [etapa-29] Códex (opcional, saneado)
+ META.prep=obj(META.prep);META.coevo=obj(META.coevo);META.diet=obj(META.diet);/* [etapa-67] *//* [etapa-65] [etapa-66] */
  META.rare=obj(META.rare);for(const k in META.rare)if(META.rare[k]!==1)delete META.rare[k]; // [etapa-61] espécies que o jogador já fez rarear
  META.pearls=num(META.pearls);META.bosses=num(META.bosses);
  /* [etapa-63] maior tempo no Infinito (s), em qualquer dificuldade; saves antigos herdam o recorde de carc2_inf_* */
@@ -951,6 +954,12 @@ function ach(id){if(META.ach[id])return;const a=ACHS.find(x=>x.id===id);if(!a)re
 // GERADO por ferramentas/novidades.js a partir de notas_de_versao.md. Não edite à mão: edite o .md e rode o montar.js.
 // Mais novas primeiro. A versão é calculada por versaoJogo() em src/30-telas-2.js.
 const NOVIDADES=[
+ {"data":"2026-11-24","titulo":"A muda que refaz seus passos","html":"<ul><li><b>A Muda Chamariz ganhou um eco.</b> Enquanto ela está num espaço de especial, a carapaça lembra os seus últimos 6 segundos: por onde você nadou e onde golpeou.</li><li>Ao usar a Muda, a casca aparece onde você estava 6 s atrás e <b>refaz o seu caminho e os seus golpes</b>, por trás de quem vinha te seguindo. Ela continua atraindo os inimigos, como antes.</li><li>Quanto mais você se moveu, mais forte o golpe do eco (até 60% do seu). Parado, o eco não fere.</li></ul>"},
+ {"data":"2026-11-24","titulo":"Disputa","html":"<ul><li><b>Evento novo:</b> ⚔️ <b>Disputa</b>. Dois predadores grandes brigam por uma carcaça, do Recife em diante. Uma seta aponta para a briga.</li><li>Os dois se ferem. Quem perde some sem deixar DNA, e o vencedor sai ferido e <b>alimentado</b> (vale mais DNA).</li><li>A escolha é sua: <b>espere</b> e derrote o vencedor enfraquecido, ou <b>entre na briga</b> cedo. Se você ferir um dos dois, eles param de brigar e vêm atrás de você.</li></ul>"},
+ {"data":"2026-11-24","titulo":"O mar come o mar","html":"<ul><li><b>As criaturas agora caçam umas às outras.</b> Enguias, polvos, tubarões, peixes-lanterna e caranguejos rivais que não estão atrás de você procuram presas por perto: peixinhos, plâncton, ermitões, cavalos-marinhos, baiacus e até enguias.</li><li>Dá para ver quando alguém <b>não</b> está atrás de você: o caçador mostra uma linha tracejada até a presa e dentes à frente. A presa foge.</li><li>Quem comeu fica <b>alimentado</b> por um tempo: maior, mais lento, e vale mais DNA se você o derrotar. Alimentado, não caça.</li><li>Se você atacar um caçador, ele larga a caça e vem atrás de você. Presa comida por outra criatura não deixa DNA.</li></ul>"},
+ {"data":"2026-11-24","titulo":"Você é o que come","html":"<ul><li><b>Caçar uma espécie dá a você um pouco dela.</b> Pegue 5 presas da mesma espécie nadando (engolindo ou abatendo com golpe ou dash) e você <b>assimila</b> essa espécie. O ícone aparece junto de você, com o tempo que falta, e embaixo fica o medidor da próxima.</li><li>🍃 Plâncton: mais DNA · 🦠 Ameba: mais armadura · 🐟 Peixinho: mais velocidade e dash · 🎐 Água-viva: quem encosta em você é envenenado · 🌀 Cavalo-marinho: mais alcance · 💦 Cuspidor: mais ritmo de ataque. Duram 20 s; continuar caçando renova, e a cada 5 presas o efeito sobe de nível (até 3).</li><li>🐡 Baiacu: empurra quem encosta · ⚡ Enguia: descarga elétrica a cada 3 s · 🐚 Ermitão: bloqueia o próximo golpe. Duram 12 s e não renovam.</li><li>Uma assimilação por vez: a próxima só troca a atual quando o medidor dela completa. Parado, nada conta. A pausa mostra a dieta, e o Códex registra cada espécie assimilada.</li></ul>"},
+ {"data":"2026-11-24","titulo":"O chefe que te observou","html":"<ul><li><b>O Caranguejo Ancestral agora estuda você.</b> Se a maior parte do seu dano na campanha veio de fontes automáticas (bolhas, espinhos, cardume, anêmonas, raio…), ele chega adaptado a elas. A faixa avisa: \"Este chefe te observou por muito tempo.\"</li><li>💧 <b>Muco:</b> suas bolhas e projéteis batem nele e voltam. Em troca, ele demora para virar.</li><li>🦑 <b>Tentáculos Longos:</b> chicoteia de longe e não encosta em você. A chicotada é lenta, e ele tem um lado cego atrás.</li><li>🦈 <b>Predador de Cardume:</b> mira seus aliados primeiro e come o cardume e as anêmonas. Depois de comer, fica aberto por um tempo.</li><li>❄️ <b>Sangue Frio:</b> imune a veneno e efeitos, e raio e ampolas fazem metade do dano. Em troca, é mais lento.</li><li>Quem luta com golpes e dash quase nunca vê isso: ele chega dizendo que \"não soube o que esperar de você\".</li><li><b>No Infinito,</b> de vez em quando um chefe também te observa (lendo o dano desde o chefe anterior). Vencê-lo oferece a carta <b>Engolir a adaptação</b>, que ocupa uma escolha e dá a você um pedaço da adaptação dele.</li><li>4 conquistas novas, uma por adaptação vencida, e o Códex do Ancestral guarda as que você já viu.</li></ul>"},
+ {"data":"2026-11-24","titulo":"Prepare-se para o chefe","html":"<ul><li><b>O que você faz antes do chefe muda a luta.</b> Nos biomas de ritmo Normal, o chefe tem uma preparação; nos de ritmo Agitado, o mini-chefe também. Um aviso no começo da onda diz o que fazer, e a faixa de entrada do chefe diz o resultado.</li><li>🕳️ <b>Ninhos:</b> alguns chefes chegam com dois ninhos das crias deles espalhados pelo bioma. Destrua os dois e o chefe não invoca (a Ameba-Mãe invoca só uma filha).</li><li>🐟 <b>Presa do predador:</b> o Baiacu Colossal, a Moreia Anciã e o Tubarão-Martelo caçam uma espécie do bioma. Cace essa espécie até ela rarear e o chefe chega <b>faminto</b>, com a fúria mais fraca. Se ninguém caçar, ele chega <b>bem alimentado</b> e se enfurece mais cedo.</li><li>🪨 <b>Território:</b> derrote o Alfa do bioma e a Lagosta Blindada perde a toca (não se enterra), e as batidas do Caranguejo-Sentinela avisam mais cedo.</li><li>A pausa mostra como está a preparação, e o Códex de cada chefe guarda a dica.</li></ul>"},
  {"data":"2026-11-24","titulo":"Infinito de horas","html":"<ul><li><b>O Infinito não tem mais parede.</b> As correntes continuam ficando mais fortes o tempo todo, mas num ritmo que dá para acompanhar. Antes, a força dos inimigos disparava perto dos 30 minutos. Agora a partida pode durar horas, e o desafio cresce junto.</li><li><b>A dificuldade fica à vista:</b> o HUD do Infinito mostra <b>∞ Correntes ×N</b> (quanto os inimigos estão mais fortes), e a faixa a cada 5 minutos também diz o valor.</li><li><b>Cartas que não acabam.</b> Com todas as mutações e fusões feitas, a escolha de nível passa a oferecer <b>cartas contínuas</b>: dano, vida, ritmo de ataque, alcance, velocidade e regeneração. Elas não têm limite, e cada nível soma um pouco menos que o anterior. Cada escolha cura 25% da vida, e dá para banir e sortear de novo. Elas substituem o Banquete.</li><li>No Infinito, os níveis continuam chegando depois do 40, e as criaturas rendem mais DNA com o tempo. A <b>Ascensão</b> para em ★10; daí em diante, quem cresce são as cartas contínuas que você escolhe.</li><li>Os <b>chefes do Infinito</b> acompanham a força das correntes e rendem menos DNA.</li><li><b>Continuar no Infinito</b> depois de zerar segue as correntes de onde a campanha parou. Como na Fossa as criaturas valem mais, lá elas rendem um pouco menos DNA.</li><li>O dano mínimo dos golpes no Infinito ficou menor.</li><li>Nova melhoria de Profundidade no Laboratório: 📜 <b>Linhagem Antiga</b>, que começa o Infinito com níveis de cartas contínuas.</li><li>Os recordes do Infinito continuam valendo, mas foram feitos com a curva antiga.</li></ul>"},
  {"data":"2026-11-24","titulo":"Laboratório para ir mais longe","html":"<ul><li><b>O Laboratório ganhou duas seções novas.</b></li><li>📚 <b>Saber</b>, que vale em todos os modos:<ul><li>🗺️ <b>Cartografia:</b> 3 descidas para escolher entre os biomas, em vez de 2.</li><li>👃 <b>Faro:</b> o Território do Alfa aparece no mapa assim que você entra no bioma.</li></ul></li><li>♾️ <b>Profundidade</b>, que vale só no Infinito. Ela é dividida em <b>camadas</b> que abrem quando o seu recorde no Infinito chega a 10, 20, 30, 45 e 60 minutos, em qualquer dificuldade. Ir mais longe abre o laboratório, e o laboratório leva mais longe.<ul><li>🌊 <b>Adaptação à Pressão:</b> as correntes do Infinito crescem mais devagar.</li><li>🫀 <b>Metabolismo Abissal:</b> mais DNA depois dos 20 minutos.</li><li>🫧 <b>Muda de Emergência:</b> uma vez por partida, ao morrer, você volta com parte da vida.</li></ul></li><li>O topo do Laboratório mostra o seu recorde no Infinito e a próxima camada. Na derrota no Infinito, aparece a camada que você acabou de abrir e a melhoria mais barata ao seu alcance. No menu, o modo Infinito mostra a sua camada.</li><li>Partidas longas no Infinito rendem mais pérolas: <b>+2 por minuto depois dos 10 minutos</b>.</li><li>Quem já tinha um recorde no Infinito começa com as camadas que ele já alcançou. Os números da Profundidade ainda podem mudar na próxima atualização, que mexe na curva do Infinito.</li></ul>"},
  {"data":"2026-11-24","titulo":"Tubarões que dá para ler","html":"<ul><li><b>Os tubarões avisam antes da investida.</b> O aviso dura mais (1 segundo) e, no fim dele, o tubarão <b>trava a mira</b>: as bordas brancas da faixa deixam de ser tracejadas e ficam contínuas. A partir daí ele vai reto, então dá tempo de sair de lado. Antes ele corrigia a mira até o último instante.</li><li><b>O esbarrão do tubarão dói menos.</b> O golpe perigoso é a investida; encostar nele fora dela tira metade do que tirava.</li><li>Vale na Campanha e no Infinito. O tubarão continua sendo o predador do abismo: quem fica parado na linha da investida ainda leva o golpe cheio.</li></ul>"},
@@ -979,7 +988,8 @@ if(!(selDiff>=0&&selDiff<=2&&selDiff===Math.floor(selDiff)))selDiff=0;
 const keys={};const mouse={x:0,y:0,down:false,active:false};
 const touch={joy:null,jx:0,jy:0,ox:0,oy:0,atk:null};
 
-function S(){const sp=P.spec;/* [etapa-50] */
+function S(){return dietS(S0());} /* [etapa-67] Dieta: efeitos da assimilação por cima */
+function S0(){const sp=P.spec;/* [etapa-50] */
  const st=STAGES[P.stage],L=k=>P.mut[k]||0,asc=1+.12*P.asc,U=k=>META.up[k]||0,Q=id=>{for(const s in P.parts){const p=P.parts[s];if(p&&p.id===id)return p.lv+(P.mut.pura?1:0);}return 0;};/* [etapa-43] Carcinização Total: +1 nível virtual */
  const adr=L('adrenalina')&&P.hp<P.max*.4?1+.15*L('adrenalina'):1;
  const emb=1;
@@ -1035,14 +1045,14 @@ function director(){const exp=1+mins()*1.6;return clamp((P.level-exp)*.08,-.3,.7
 // [etapa-31] sorteios com semente (só conteúdo: cartas, partes, nascimentos/elites e eventos). Visual continua em Math.random.
 // Cada tipo de sorteio tem o próprio gerador, para que uma escolha de carta não mude a sequência de nascimentos e vice-versa.
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-const RNG={cards:Math.random,parts:Math.random,spawn:Math.random,ev:Math.random,eco:Math.random/* [etapa-57] sorteios ecológicos; semeado em seedRun */,ecoR:Math.random/* [etapa-58] descidas e perfil: só nas passagens de bioma */,ecoM:Math.random/* [etapa-59] marcos: só na entrada do bioma */,ecoA:Math.random/* [etapa-60] Território: troca de espécie no nascimento perto do Alfa */};
-function seedRun(seed){let i=0;for(const k in RNG)if(k!=='eco'&&k!=='ecoR'&&k!=='ecoM'&&k!=='ecoA')RNG[k]=seed==null?Math.random:mulberry32(seed*31+(++i)*1013904223);
+const RNG={cards:Math.random,parts:Math.random,spawn:Math.random,ev:Math.random,eco:Math.random/* [etapa-57] sorteios ecológicos; semeado em seedRun */,ecoR:Math.random/* [etapa-58] descidas e perfil: só nas passagens de bioma */,ecoM:Math.random/* [etapa-59] marcos: só na entrada do bioma */,ecoA:Math.random/* [etapa-60] Território: troca de espécie no nascimento perto do Alfa */,ecoP:Math.random/* [etapa-65] Preparação: posição dos ninhos */,ecoV:Math.random/* [etapa-66] Rainha Vermelha: chefe que observou, no Infinito */};
+function seedRun(seed){let i=0;for(const k in RNG)if(k!=='eco'&&k!=='ecoR'&&k!=='ecoM'&&k!=='ecoA'&&k!=='ecoP'/* [etapa-65] */&&k!=='ecoV'/* [etapa-66] */)RNG[k]=seed==null?Math.random:mulberry32(seed*31+(++i)*1013904223);
  /* [etapa-57] RNG.eco nunca é o Math.random: sem semente, nasce do crypto. Assim os sorteios ecológicos não deslocam nenhum outro sorteio (nem o Math.random semeado dos testes) */
  const cs=()=>{try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(performance.now()*1e3))>>>0;}};
- RNG.eco=mulberry32(seed!=null?seed*31+5*1013904223:cs());RNG.ecoR=mulberry32(seed!=null?seed*31+6*1013904223:cs());/* [etapa-58] */RNG.ecoM=mulberry32(seed!=null?seed*31+7*1013904223:cs());/* [etapa-59] */RNG.ecoA=mulberry32(seed!=null?seed*31+8*1013904223:cs());/* [etapa-60] */}
+ RNG.eco=mulberry32(seed!=null?seed*31+5*1013904223:cs());RNG.ecoR=mulberry32(seed!=null?seed*31+6*1013904223:cs());/* [etapa-58] */RNG.ecoM=mulberry32(seed!=null?seed*31+7*1013904223:cs());/* [etapa-59] */RNG.ecoA=mulberry32(seed!=null?seed*31+8*1013904223:cs());/* [etapa-60] */RNG.ecoP=mulberry32(seed!=null?seed*31+9*1013904223:cs());/* [etapa-65] */RNG.ecoV=mulberry32(seed!=null?seed*31+10*1013904223:cs());/* [etapa-66] */}
 /* [etapa-57] chaves de reversibilidade do ciclo 57–70 (enriquecimento do ecossistema). Tudo desligado = jogo da etapa 56.
    Cada etapa acrescenta só a chave do seu sistema. */
-const ECO={conds:true,descidas:true/* [etapa-58] */,perfil:true/* [etapa-58] */,marcos:true/* [etapa-59] */,alfa:true/* [etapa-60] */,pressao:true/* [etapa-61] */,afinidades:true/* [etapa-61] */};
+const ECO={conds:true,descidas:true/* [etapa-58] */,perfil:true/* [etapa-58] */,marcos:true/* [etapa-59] */,alfa:true/* [etapa-60] */,pressao:true/* [etapa-61] */,afinidades:true/* [etapa-61] */,preparacao:true/* [etapa-65] */,coevo:true/* [etapa-66] */,dieta:true/* [etapa-67] */,teia:true/* [etapa-68] */,exuvia:true/* [etapa-70] */};
 const todaySeed=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();};
 // [etapa-31] modificadores de partida (opcionais, com bônus de pérolas; o bônus somado tem teto de +100%)
 const MODS=[{id:'pincas',ic:'🦀',n:'Só Pinças',b:25,d:'As escolhas de parte só oferecem Armas.'},{id:'semdash',ic:'🚫',n:'Sem Dash',b:40,d:'O dash fica desligado (e cartas de dash não aparecem).'},
@@ -1114,7 +1124,7 @@ function spawnBoss(id){
  const e={k:'boss',id,look:B.look,name:B.name,boss:true,mini:!!B.mini,x,y,vx:0,vy:0,r:B.r,baseR:B.r,hp,max:hp,dmg:bioDm()/* [etapa-54] */*B.dmg*(run.mode==='inf'?dmgMul()/* [etapa-64] chefe acompanha as correntes (era d.dmg × (1 + 0,04·min)) */:d.dmg),spd:B.spd,c1:B.c[0],c2:B.c[1],atks:B.atks,min:B.min,
   t:0,wa:0,ang:Math.atan2(P.y-y,P.x-x),flash:0,hitCd:0,pois:0,pdps:0,puff:0,trail:[],st:'move',stT:2.2,cd:0,sq:0,bp:4,tel:0,armor:0,phase2:false,reps:0};
  enemies.push(e);tip('boss'); // [etapa-11]
- e.shU=time+BOSS_PACE.intro;/* [etapa-35] */banner={txt:(B.mini?'MINI-CHEFE: ':'CHEFE: ')+B.name,t:3,big:1};addShake(10);/* [etapa-4] */snd(60,1,'sawtooth',.07,-20,'boss');
+ e.shU=time+BOSS_PACE.intro;/* [etapa-35] */const pt=prepApply(e);/* [etapa-65] */cvApply(e);/* [etapa-66] */banner={txt:(B.mini?'MINI-CHEFE: ':'CHEFE: ')+B.name+(pt?' — '+pt:''),t:pt?4.2:3,big:1};addShake(10);/* [etapa-4] */snd(60,1,'sawtooth',.07,-20,'boss');
  for(let i=0;i<40;i++)parts.push({x,y,vx:rand(-300,300),vy:rand(-300,300),life:rand(.4,1),col:B.c[0],r:rand(3,6)});
  return e;
 }
@@ -1181,6 +1191,7 @@ function applyCond(ch){
  run.evT*=evMul();
  if(c||run.pf){const s=statB();if(s){s.cnd=c?c.id:null;s.pf=run.pf;s.rw=run.rw;}} // [etapa-58] telemetria (I7)
  genSites(); // [etapa-59] marcos do bioma (lê o perfil e a condição)
+ prepWave(0); /* [etapa-65] ninhos e aviso do mini-chefe */
 }
 function condBanner(dt){ // chamado no update
  if(!(run.cndShow>0))return;run.cndShow-=dt;if(run.cndShow>0)return;
@@ -1332,6 +1343,7 @@ function siteUpdate(dt){
   const inside=P.hp>0&&siteIn(s);
   if(inside&&!s.arr){s.arr=1;const st=siteStat(s);if(st)st.arr=+s.t.toFixed(1);}
   if(S0.fam==='ter'){terUpdate(s,dt,inside);continue;} // [etapa-60]
+  if(S0.fam==='nin'){prepNestUpdate(s,dt);continue;} /* [etapa-65] ninho do chefe */
   if(S0.fam==='rec'){
    if(!inside)continue;
    siteUse(s);s.q-=dt;s.sT-=dt;
@@ -1364,7 +1376,7 @@ function sitesEnd(){if(!run.sites)return;for(const s of run.sites)if(!s.gone)sit
 function siteHTML(){
  if(!sitesOn())return '';
  return '<div class="sub" style="font-size:15px">Marcos: '+run.sites.map(s=>{const S0=SITES[s.k];if(!s.det)return '❔ <i>ainda não encontrado</i>';
-  return S0.ic+' <b>'+S0.n+'</b>'+(S0.fam==='ter'?(s.used?' (Alfa derrotado)':''):s.gone?(S0.fam==='rec'?' (esgotad'+(S0.g||'a')+')':' (usad'+(S0.g||'a')+')'):s.act>0?' (ativ'+(S0.g||'a')+')':'');}).join(' · ')+'</div>';
+  return S0.ic+' <b>'+S0.n+'</b>'+(S0.fam==='nin'?(s.used?' (destruído)':'')/* [etapa-65] */:S0.fam==='ter'?(s.used?' (Alfa derrotado)':''):s.gone?(S0.fam==='rec'?' (esgotad'+(S0.g||'a')+')':' (usad'+(S0.g||'a')+')'):s.act>0?' (ativ'+(S0.g||'a')+')':'');}).join(' · ')+'</div>';
 }
 
 /* ---------- desenho ---------- */
@@ -1374,7 +1386,7 @@ function siteHTML(){
 function drawSites(){
  if(!sitesOn())return;const v=view(),T=RM?0:time;
  for(const s of run.sites){
-  const S0=SITES[s.k],R=S0.r,m=R+220;if(s.gone>1.2||s.x<v.x0-m||s.x>v.x1+m||s.y<v.y0-m||s.y>v.y1+m)continue;
+  const S0=SITES[s.k],R=S0.r,m=R+220;if(S0.fam==='nin')continue;/* [etapa-65] o ninho é desenhado como criatura */if(s.gone>1.2||s.x<v.x0-m||s.x>v.x1+m||s.y<v.y0-m||s.y>v.y1+m)continue;
   const fade=s.gone?Math.max(0,1-s.gone/1.2):Math.min(1,.35+s.t);
   if(bDark())lights.push({x:s.x,y:s.y,r:R+60,c:S0.col,a:S0.lit?.55:.3});
   ctx.save();ctx.translate(s.x,s.y);ctx.globalAlpha=fade;
@@ -1598,7 +1610,7 @@ function popMul(k){const o=run.pop,base=bSpawn();if(!o||!o.n[k]||!base[k])return
 function popSpawnW(){if(!popOn())return bSpawn();const o=popSync();return o.w||bSpawn();}
 function popRecalc(){if(!popOn())return;const o=popSync(),base=bSpawn();let any=false;const w={};for(const k in base){const m=popMul(k);if(m<1)any=true;w[k]=base[k]*m;}o.w=any?w:null;}
 function popKill(e){ // chamado em killEnemy (morta ou engolida)
- if(!popOn()||e.boss)return;const o=popSync(),base=bSpawn();if(!base[e.k])return;{const b=statB();if(b)b.popN=(b.popN||0)+1;}
+ if(!popOn()||e.boss||e.nest/* [etapa-65] */)return;const o=popSync(),base=bSpawn();if(!base[e.k])return;{const b=statB();if(b)b.popN=(b.popN||0)+1;}
  const K=popK(base[e.k]);o.n[e.k]=Math.min(K,(o.n[e.k]||0)+1);o.d[e.k]=0;
  if(!o.rare[e.k]&&o.n[e.k]>=K){o.rare[e.k]=1;o.q.push(POP_TXT[e.k]||'Uma espécie rareou.');
   if(!META.rare)META.rare={};if(!META.rare[e.k]){META.rare[e.k]=1;codexDirty=true;}
@@ -1680,6 +1692,570 @@ const infXpM=()=>run&&run.mode==='inf'?(1+INF.xpT*infM().m)*(run.cont?INF.contXp
 function infFloor(dmg,src){const m=infM().m,pct=clamp((m-INF.floorT)*INF.floorK,0,INF.floorMax)*(src&&(src.elite||src.boss)?INF.floorBig:1);return pct>0?Math.max(dmg,P.max*pct/(1-ps.armor)):dmg;}
 const correntes=()=>hpMul();
 const corrTxt=()=>'×'+(v=>v>=100?Math.round(v):v.toFixed(1)).call(null,correntes()).toString().replace('.',',');
+/* ================= Preparação do Predador ================= */
+// [etapa-65] P7 do plano de enriquecimento. Chave ECO.preparacao (só na Campanha). Os 2 minutos antes do chefe ganham
+// significado: o que você fez no bioma muda UM ataque do chefe (remove, enfraquece ou reforça). Nunca corta vida, então
+// o ritmo mínimo da luta (BOSS_PACE) não muda. O cronômetro também não.
+// Três modelos (tabela BOSS_PREP, uma entrada por chefe):
+//   nin  Ninhos: 2 ninhos da espécie que o chefe invoca aparecem no começo da onda dele. Destruir os dois → não invoca.
+//        Se tirar o ataque deixar menos de 2, enfraquece em vez de tirar (Ameba-Mãe: invoca 1 filha, 2 na fúria).
+//   presa Presa do predador: f = n/K da presa dele no contador de caça da 61, na hora em que o chefe nasce.
+//        f >= 0,75 → faminto: a fúria (fase 2) acelera ×1,15 em vez de ×1,3. f <= 0,15 → bem alimentado: a fúria
+//        começa aos 55% da vida em vez de 50%. Entre os dois, nada muda. Precisa de ECO.pressao.
+//   ter  Território: o Alfa (60) do bioma derrotado → o chefe perde uma vantagem do lugar. Precisa de ECO.alfa.
+// Perfil (58): Calmo não tem preparação; Normal só no chefe; Agitado no mini-chefe e no chefe.
+// Ninhos são marcos (família 'nin' em run.sites): detecção, seta, pausa e telemetria da 59. Um par por onda, que some
+// quando o chefe nasce. Não entram na conta "no máximo 3 marcos por bioma": são o objetivo da onda, não um lugar de uso.
+// Sorteio novo: posição dos ninhos com RNG.ecoP, 4 sorteios por onda de chefe (sempre, com a chave ligada na Campanha),
+// para que a diária dê os mesmos ninhos e nenhum outro gerador se desloque.
+const BOSS_PREP={
+ amebaMae:{m:'nin',g:'a',fx:'fraco',ok:'ninhos destruídos: invoca só uma filha.',dica:'Destrua os 2 ninhos de amebas e ela quase não invoca.'},
+ aguaRainha:{m:'nin',g:'a',ok:'ninhos destruídos: não invoca.',dica:'Destrua os 2 ninhos de águas-vivas e ela não invoca.'},
+ baiacuColossal:{m:'presa',g:'o',prey:'ourico',pn:'ouriços',dica:'Ele caça ouriços. Cace-os antes e ele chega faminto.'},
+ moreia:{m:'presa',g:'a',prey:'peixinho',pn:'peixinhos',dica:'Ela caça peixinhos. Cace-os antes e ela chega faminta.'},
+ polvoGigante:{m:'nin',g:'o',ok:'ninhos destruídos: não invoca.',dica:'Destrua os 2 ninhos de cuspidores e ele não invoca.'},
+ lagostaBlindada:{m:'ter',g:'a',atk:'burrow',ok:'sem o Alfa, perdeu a toca: não se enterra.',dica:'Derrote o Alfa do bioma e ela perde a toca: não se enterra.'},
+ tubaraoMartelo:{m:'presa',g:'o',prey:'polvo',pn:'polvos',dica:'Ele caça polvos. Cace-os antes e ele chega faminto.'},
+ peixeDiabo:{m:'nin',g:'o',ok:'ninhos destruídos: não invoca.',dica:'Destrua os 2 ninhos de lanternas e ele não invoca.'},
+ sentinela:{m:'ter',g:'o',atk:'slam',ok:'sem o Alfa, as batidas avisam mais cedo.',dica:'Derrote o Alfa do bioma e as batidas dele avisam mais cedo.'},
+ ancestral:{m:'nin',g:'o',ok:'ninhos destruídos: não invoca.',dica:'Destrua os 2 ninhos de caranguejos e ele não invoca.'},
+};
+const PREP_FAM=.75,PREP_FED=.15,PREP_M2=1.15,PREP_P2=.55,PREP_SLAM=1.4/* batida com aviso 40% maior */;
+const PREP_NEST_R=110,PREP_NEST_HP=.08/* da vida do chefe */,PREP_NEST_KID=4.5/* s entre crias */,PREP_NEST_KIDS=3;
+SITES.ninho={fam:'nin',ic:'🕳️',n:'Ninho',g:'o',r:PREP_NEST_R,col:'255,190,150',f:'Destrua os dois ninhos antes de o chefe chegar.'};
+const prepOk=()=>!!(ECO.preparacao&&run&&run.mode==='camp');
+// o chefe id tem preparação neste bioma? (perfil: Calmo nada; Normal só o chefe; Agitado os dois)
+function prepFor(id){
+ if(!prepOk()||!BOSS_PREP[id])return false;const pf=run.pf||'normal';
+ if(pf==='calmo')return false;if(BOSSES[id].mini&&pf!=='agitado')return false;
+ const T=BOSS_PREP[id];if(T.m==='presa'&&!ECO.pressao)return false;if(T.m==='ter'&&!(ECO.alfa&&ECO.marcos))return false;if(T.m==='nin'&&!ECO.marcos)return false;
+ return true;}
+const prepNome=id=>BOSSES[id].name;
+// f da presa (contador da 61): 0 sem caça, 1 no piso
+function prepF(id){const T=BOSS_PREP[id];if(!T||!T.prey||!run.pop||run.pop.b!==run.biome)return 0;const base=bSpawn();if(!base[T.prey])return 0;return Math.min(1,(run.pop.n[T.prey]||0)/popK(base[T.prey]));}
+function prepTer(){if(!run.sites)return null;for(const s of run.sites)if(s.k==='territorio')return s;return null;}
+// começo da onda do chefe w (0 = mini-chefe, 1 = chefe): ninhos e aviso. Chamado na entrada do bioma e na morte do mini-chefe.
+function prepWave(w){
+ run.prepW=null;if(!prepOk())return;const R=RNG.ecoP,x=[R(),R(),R(),R()];/* 4 sorteios sempre */
+ for(let i=toasts.length-1;i>=0;i--)if(toasts[i].prep)toasts.splice(i,1); // o newGame do fundo do menu não deixa aviso velho
+ const id=BIOMES[run.biome].bosses[w];if(!id||!prepFor(id))return;const T=BOSS_PREP[id];
+ if(T.m==='ter'&&!prepTer())return; // sem Território no bioma, não há o que preparar
+ run.prepW={id,w};
+ if(T.m==='nin'){
+  const st=Math.min(4,P.stage),a0=x[0]*TAU,b=statB();
+  for(let i=0;i<2;i++){let a=a0+i*Math.PI+(x[1+i]-.5)*1.2,d=700+70*st+x[3]*(300+60*st),sx=0,sy=0;
+   for(let t=0;t<4;t++){sx=clamp(P.x+Math.cos(a)*d,260,WORLD-260);sy=clamp(P.y+Math.sin(a)*d,260,WORLD-260);if(Math.hypot(sx-P.x,sy-P.y)>=Math.min(650,d*.9))break;a+=Math.PI/2;}
+   if(!run.sites)run.sites=[];if(b&&!b.mc)b.mc=[];const sid=b?b.mc.length:run.sites.length;
+   run.sites.push({k:'ninho',boss:id,min:BOSSES[id].min,x:sx,y:sy,t:0,det:0,how:null,q:0,inT:0,act:0,blk:0,used:false,gone:0,sT:0,err:(x[1+i]*2-1)*SITE_ERR,id:sid});
+   if(b)b.mc.push({k:'ninho',det:null,how:null,use:null,end:null});}
+ }
+ toasts.push({txt:'🎯 '+prepNome(id)+': '+T.dica,t:5,prep:1});
+ const b=statB();if(b){b.prep=(b.prep||[]).filter(q=>q.w!==w);b.prep.push({id,m:T.m,w,res:null});} // a medição sorteia os marcos de novo: sem entrada repetida
+}
+// ninho: estrutura parada que solta crias quando você chega perto. Sem dano de contato, não é engolido, não some de longe.
+function prepNest(s){
+ const B=BOSSES[s.boss],e=makeEnemy(s.min,s.x,s.y,false);{const b=statB();if(b&&b.sp&&b.sp[s.min])b.sp[s.min]--;} // não conta como nascimento da espécie
+ e.nest=s;e.look='ninho';e.noEat=true;e.beh='static';e.spd=0;e.dmg=0;e.r=e.baseR=40+8*Math.min(4,P.stage)/* cresce com o zoom do estágio */;e.armor=0;
+ e.hp=e.max=B.hp*DIFFS[run.diff].hp*PREP_NEST_HP;e.xp=KINDS[s.min].xp*6;e.c1=B.c[0];e.c2=B.c[1];
+ s.en=e;s.kT=1.5;return e;}
+function prepNestUpdate(s,dt){
+ if(s.used)return;if(!s.en)prepNest(s);const e=s.en;
+ if(e.dead){prepNestDead(s);return;}
+ e.x=s.x;e.y=s.y;e.vx=e.vy=0;
+ if(Math.hypot(P.x-s.x,P.y-s.y)<760){s.kT-=dt;if(s.kT<=0){s.kT=PREP_NEST_KID;let n=0;for(const q of enemies)if(q.kid===s&&!q.dead)n++;
+  if(n<PREP_NEST_KIDS&&enemies.length<bioQ(BIO_QCAP)+8){const a=rand(0,TAU),c=makeEnemy(s.min,s.x+Math.cos(a)*(e.r+20),s.y+Math.sin(a)*(e.r+20),false);c.kid=s;c.vx=Math.cos(a)*160;c.vy=Math.sin(a)*160;e.sq=1;}}}
+}
+function prepNestDead(s){
+ if(s.used)return;siteUse(s);s.en=null;siteEnd(s,null);
+ const L=run.sites.filter(q=>q.k==='ninho'&&q.boss===s.boss),n=L.filter(q=>q.used).length,T=BOSS_PREP[s.boss];
+ if(n>=2){banner={txt:'🕳️ Ninhos destruídos: '+prepNome(s.boss)+(T.fx==='fraco'?' vai invocar pouco.':' não vai invocar.'),t:3.2};snd(330,.5,'triangle',.05,220,'event');}
+ else toasts.push({txt:'🕳️ Ninho destruído ('+n+'/2).',t:3});
+}
+// o chefe nasceu: some com os ninhos que sobraram e aplica o resultado. Devolve o texto da faixa (ou '').
+function prepApply(e){
+ const id=e.id,T=BOSS_PREP[id];let txt='',res=null;
+ if(run.sites)for(const s of run.sites)if(s.k==='ninho'&&!s.gone){if(s.en&&!s.en.dead){s.en.dead=true;}s.en=null;siteEnd(s,null);}
+ const pw=run.prepW;run.prepW=null;
+ if(!T||!pw||pw.id!==id||!prepFor(id))return '';
+ const ofA=(g)=>g==='a'?'a':'o';
+ if(T.m==='nin'){const n=(run.sites||[]).filter(q=>q.k==='ninho'&&q.boss===id&&q.used).length;res=n>=2?'ok':'nao';
+  if(n>=2){if(T.fx==='fraco'||e.atks.filter(a=>a!=='summon').length<2)e.weak={summon:1};else e.atks=e.atks.filter(a=>a!=='summon');txt=T.ok;}}
+ else if(T.m==='presa'){const f=prepF(id);res=f>=PREP_FAM?'faminto':f<=PREP_FED?'alimentado':'nada';
+  if(res==='faminto'){e.m2=PREP_M2;txt=(T.g==='a'?'faminta':'faminto')+': a fúria vem mais fraca.';}
+  else if(res==='alimentado'){e.p2=PREP_P2;txt=(T.g==='a'?'bem alimentada':'bem alimentado')+': se enfurece mais cedo.';}
+  const b=statB();if(b&&b.prep){const q=b.prep[b.prep.length-1];if(q&&q.id===id)q.f=+f.toFixed(2);}}
+ else if(T.m==='ter'){const s=prepTer();res=s&&s.used?'ok':'nao';
+  if(res==='ok'){if(T.atk==='slam')e.weak={slam:1};else{const l=e.atks.filter(a=>a!==T.atk);if(l.length>=2)e.atks=l;else e.weak={[T.atk]:1};}txt=T.ok;}}
+ {const b=statB();if(b&&b.prep){const q=b.prep[b.prep.length-1];if(q&&q.id===id){q.res=res;q.t0=+time.toFixed(1);e.prepQ=q;}}}
+ if(res&&res!=='nao'&&res!=='nada'){if(!META.prep)META.prep={};if(!META.prep[id]){META.prep[id]=1;codexDirty=true;}e.prep=res;}
+ return txt;
+}
+// telemetria: duração da luta preparada (para conferir o mínimo de BOSS_PACE)
+function prepBossDead(e){if(e.prepQ)e.prepQ.dur=+(time-e.prepQ.t0).toFixed(1);}
+// Códex: dica da preparação, só para chefes já vistos
+function prepCodex(id){const T=BOSS_PREP[id];if(!T||!ECO.preparacao)return '';return ' Preparação: '+T.dica+(META.prep&&META.prep[id]?' ✔️':'');}
+// linha da pausa
+function prepHTML(){
+ if(!prepOk()||!run.prepW)return '';const id=run.prepW.id,T=BOSS_PREP[id];let st='';
+ if(T.m==='nin'){const n=(run.sites||[]).filter(q=>q.k==='ninho'&&q.boss===id&&q.used).length;st=n+'/2 ninhos destruídos';}
+ else if(T.m==='presa'){const f=prepF(id);st=T.pn+' caçados: '+Math.round(f*100)+'% '+(f>=PREP_FAM?'(faminto)':f<=PREP_FED?'(bem alimentado)':'');}
+ else{const s=prepTer();st=s&&s.used?'Alfa derrotado':'Alfa vivo';}
+ return '<div class="sub" style="font-size:15px">🎯 '+prepNome(id)+': '+st+'</div>';
+}
+
+/* ---------- desenho ---------- */
+// cor dos ovos: a mais clara das duas cores do chefe, clareada se for escura (o Peixe-Diabo é quase preto)
+const _egg={};
+function nestEgg(e){const k=e.c1+e.c2;if(_egg[k])return _egg[k];const L=c=>{const n=parseInt(c.slice(1),16);return ((n>>16)*.299+(n>>8&255)*.587+(n&255)*.114)/255;};const c=L(e.c1)>=L(e.c2)?e.c1:e.c2;return _egg[k]=shc(c,L(c)<.35?.55:.15);}
+// monte de cascalho com ovos na cor do chefe, pulsando; a vida aparece num arco em volta. RM congela, HC contorna.
+function drawNest(e){
+ const r=e.r,T=RM?0:e.t,ol=HC?'#ffffff':'rgba(10,14,24,.85)',eg=nestEgg(e);
+ // anel aceso em volta: o ninho se lê de longe e no escuro (o raio é o do marco)
+ ctx.setLineDash(RM?[]:[8,10]);ctx.lineDashOffset=-T*10;ctx.strokeStyle=HC?'#ffffff':'rgba(255,190,150,'+(.55+.2*Math.sin(T*3))+')';ctx.lineWidth=HC?3.5:2.5;ctx.beginPath();ctx.arc(0,0,r*1.55,0,TAU);ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle='rgba(40,30,24,.35)';ctx.beginPath();ctx.ellipse(0,r*.25,r*1.25,r*.55,0,0,TAU);ctx.fill();
+ ctx.fillStyle='#4f4238';ctx.strokeStyle=ol;ctx.lineWidth=HC?4:3;ctx.beginPath();
+ for(let j=0;j<=14;j++){const a=Math.PI+j/14*Math.PI,rr=r*(1+.08*Math.sin(j*2.7));j?ctx.lineTo(Math.cos(a)*rr*1.15,Math.sin(a)*rr*.75+r*.25):ctx.moveTo(Math.cos(a)*rr*1.15,Math.sin(a)*rr*.75+r*.25);}
+ ctx.closePath();ctx.fill();ctx.stroke();
+ const pl=1+.08*Math.sin(T*3)*(1+e.sq);
+ for(let i=0;i<5;i++){const x=(i-2)*r*.32,y=-r*.15-Math.abs(i-2)*-.08*r-((i%2)*r*.18),s=r*.2*pl;
+  ctx.fillStyle=eg;ctx.strokeStyle=HC?'#ffffff':ol;ctx.lineWidth=HC?3:2;ctx.beginPath();ctx.ellipse(x,y,s,s*1.2,0,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(x-s*.35,y-s*.4,s*.25,0,TAU);ctx.fill();}
+ if(e.hp<e.max){ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,0,r*1.35,-Math.PI/2,TAU-Math.PI/2);ctx.stroke();
+  ctx.strokeStyle=HC?'#ffffff':'#ff9a7a';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,r*1.35,-Math.PI/2,-Math.PI/2+TAU*Math.max(0,e.hp/e.max));ctx.stroke();}
+ if(bDark())lights.push({x:e.x,y:e.y,r:r*3,c:'255,190,150',a:.35});
+}
+/* ================= Rainha Vermelha ================= */
+// [etapa-66] Laboratório de mecânicas, ideia D. Chave ECO.coevo. Um chefe que te observou se adapta ao seu dano AUTOMÁTICO.
+// Onde: na Campanha, só o Caranguejo Ancestral (lê o dano da campanha inteira). No Infinito (e no "Continuar"), chefes
+// sorteados: 1 em 3, nunca dois seguidos, lendo o dano desde o chefe anterior. Sorteio com RNG.ecoV (1 por chefe do Infinito).
+// Dano automático = projetil, bolhas, espinhos, anel, cardume, anemona, raio e ampolas. Golpe e dash nunca contam;
+// marco e fendas (ambiente) ficam fora da conta (nem automático nem total).
+// Se a parte automática passar de CV_TH, o chefe se adapta à FAMÍLIA dominante. Desvio do plano: o plano pedia 50%, mas na
+// medição da 65 o bot ativo chegou a 58% (raio) numa semente, e os bots passivos ficam em 75–83%. Com 65% eles se separam.
+// A adaptação não mexe na vida nem no dano do chefe: só no comportamento.
+//   muco       bolhas e projéteis batem nele e voltam (no máx. 1 a cada 0,2 s, com 40% do dano dele; os outros grudam). Fraqueza: gira devagar
+//   tentaculos espinhos e anel: ataca a 220 px (chicotada) e não encosta; a investida vira chicotada. Fraqueza: chicotada lenta
+//              e lado cego atrás (golpes e dash pelas costas +30%)
+//   cardume    cardume e anêmonas: a bocada mira seus aliados (cardume some 6 s, anêmonas comidas). Fraqueza: abre a guarda ao comer
+//   frio       raio e ampolas: imune a veneno e a efeitos (abalo, fratura, quebra), raio e ampolas pela metade. Fraqueza: 20% mais lento
+// Recompensa: no Infinito, a carta "Engolir a adaptação" (ocupa uma escolha). Na Campanha, Códex e uma conquista por adaptação.
+const CV_TH=.65,CV_P=1/3;
+const CV_SRC={projetil:'muco',bolhas:'muco',espinhos:'tentaculos',anel:'tentaculos',cardume:'cardume',anemona:'cardume',raio:'frio',ampolas:'frio'};
+const CV_OUT={marco:1,fendas:1};
+const CV={
+ muco:{ic:'💧',n:'Muco',f:'seus projéteis voltam.',eat:'Seus projéteis ricocheteiam 1× em outro alvo.',col:'190,255,230'},
+ tentaculos:{ic:'🦑',n:'Tentáculos Longos',f:'ataca de longe e não encosta em você.',eat:'Seus espinhos atingem quem estiver a até 90 px.',col:'255,150,190'},
+ cardume:{ic:'🦈',n:'Predador de Cardume',f:'ele mira seus aliados primeiro.',eat:'Cardume e anêmonas causam 30% a mais de dano.',col:'255,210,120'},
+ frio:{ic:'❄️',n:'Sangue Frio',f:'imune a veneno e efeitos; raio e ampolas pela metade.',eat:'Veneno em você dura metade do tempo.',col:'190,220,255'},
+};
+const CV_REACH=220,CV_MUCO_T=.2,CV_MUCO_D=.4; // Muco: no máx. 1 bolha devolvida a cada 0,2 s, com 40% do dano do chefe
+let COEVO_FORCE=null; // testes e medição: família forçada (o Ancestral sempre se adapta a ela)
+const cvOn=()=>!!(ECO.coevo&&run);
+// dano por fonte somado em todos os biomas (a medição da 52 já guarda isso em run.stat)
+function cvTotals(){const t={};for(const s of run.stat||[])if(s&&s.dmg)for(const k in s.dmg)t[k]=(t[k]||0)+s.dmg[k];return t;}
+// parte automática e família dominante na janela (Campanha inteira, ou desde o último chefe no Infinito)
+function cvRead(){
+ const t=cvTotals(),b=run.cvBase||{},f={};let tot=0,auto=0;
+ for(const k in t){if(CV_OUT[k])continue;const v=Math.max(0,t[k]-(b[k]||0));tot+=v;const fm=CV_SRC[k];if(fm){auto+=v;f[fm]=(f[fm]||0)+v;}}
+ let fam=null,bx=0;for(const k in f)if(f[k]>bx){bx=f[k];fam=k;}
+ return {sh:tot>0?auto/tot:0,fam,tot};
+}
+// o chefe nasceu: é um chefe que observou? (Campanha: o Ancestral; Infinito: sorteio)
+function cvPick(e){
+ if(!cvOn())return false;
+ if(run.mode==='inf'){const x=RNG.ecoV();/* 1 sorteio por chefe, sempre */if(COEVO_FORCE)return true;const ok=x<CV_P&&!run.cvLast;run.cvLast=ok;return ok;}
+ return e.id==='ancestral';
+}
+function cvApply(e){
+ if(!cvPick(e))return;
+ const r=cvRead(),fam=COEVO_FORCE&&CV[COEVO_FORCE]?COEVO_FORCE:(r.sh>CV_TH?r.fam:null);
+ e.cvSeen=1;e.cvB=e.mini?3.2:4.4; // a faixa da adaptação entra depois da faixa do chefe
+ const b=statB();if(b)b.cv={id:e.id,fam,sh:+r.sh.toFixed(3)};
+ if(!fam){e.cvTxt='👁️ Este chefe te observou por muito tempo. Ele não soube o que esperar de você.';return;}
+ e.cv=fam;const C=CV[fam];e.cvTxt='👁️ Este chefe te observou por muito tempo. '+C.ic+' '+C.n+': '+C.f;
+ if(fam==='tentaculos'){e.atks=e.atks.map(a=>a==='charge'?'lash':a);if(!e.atks.includes('lash'))e.atks=e.atks.concat(['lash']);e.reach=CV_REACH;}
+ if(fam==='cardume')e.atks=e.atks.concat(['gulp']);
+ if(fam==='frio')e.spd*=.8;
+ if(!META.coevo)META.coevo={};if(!META.coevo[fam]){META.coevo[fam]={s:1};codexDirty=true;}
+}
+// a cada quadro do chefe (antes da máquina de estados)
+function cvUpdate(e,dt,ux,uy){
+ if(e.cvB>0){e.cvB-=dt;if(e.cvB<=0&&e.cvTxt){banner={txt:e.cvTxt,t:4.2};snd(180,.6,'sine',.05,-60,'boss');}}
+ if(!e.cv)return;
+ if(e.cv==='frio'){e.pois=0;e.sismoT=0;e.fracture=0;e.brk=0;}
+ if(e.cvRec>0){e.rec=Math.max(e.rec,e.cvRec);e.cvRec=0;} // o fim do ataque põe 0,6 s; a bocada pede mais
+ if(e.cv==='muco'&&e.mcT>0)e.mcT-=dt;
+ if(e.st==='lash'&&e.sub==='wind'&&e.stT>.35)e.lA=Math.atan2(uy,ux);
+}
+// direção de movimento (Tentáculos: mantém a distância da chicotada)
+function cvMove(e,d){if(e.cv!=='tentaculos')return 1;return d<e.reach-20?-1:d<e.reach+70?0:1;}
+// fim do aviso dos ataques novos
+function cvFire(e){
+ if(e.st==='lash'){ // chicotada: faixa reta de 260 px na direção travada
+  const a=e.lA||0,L=e.reach+40,cx=Math.cos(a),cy=Math.sin(a),dx=P.x-e.x,dy=P.y-e.y,al=dx*cx+dy*cy,of=Math.abs(dx*-cy+dy*cx);
+  if(fx.length<40)fx.push({t:'lash',x:e.x,y:e.y,a,L,life:.3,max:.3});snd(220,.25,'sawtooth',.05,-120,'boss');
+  if(al>0&&al<L+ps.r&&of<34+ps.r&&P.inv<=0&&P.dashT<=0)hurtPlayer(e.dmg*1.1,null/* de longe: não aciona os espinhos */,false,{x:e.x,y:e.y,n:e.name,k:'chicotada'});
+ }else if(e.st==='gulp'){ // bocada: come os aliados perto do ponto marcado
+  const R=ps.r*2.4+80;let n=0;
+  if(P.mut.cardume&&Math.hypot(P.x-e.gx,P.y-e.gy)<R){P.cvCard=6;n++;}
+  for(const q of P.anem)if(q.on&&Math.hypot(q.x-e.gx,q.y-e.gy)<R+40){q.on=false;n++;}
+  if(fx.length<40)fx.push({t:'ring',x:e.gx,y:e.gy,r:R,life:.35,max:.35,col:'255,210,120'});snd(140,.3,'square',.05,-80,'boss');
+  if(n){e.cvRec=1.6;texts.push({x:e.x,y:e.y-e.r,txt:'COMEU!',col:'#ffd27a',life:1,s:1.2,vy:-40});} // abre a guarda: janela de recuperação longa
+ }
+}
+function cvWind(e,a){ // começo do aviso
+ if(a==='lash'){e.stT=.9;snd(260,.4,'sawtooth',.04,-60,'boss');return true;}
+ if(a==='gulp'){e.stT=.8;e.gx=P.x;e.gy=P.y;hazards.push({t:'gulp',x:P.x,y:P.y,r:ps.r*2.4+80,delay:.8,max:.8,dmg:0});snd(110,.5,'triangle',.05,40,'boss');return true;}
+ return false;
+}
+// dano no chefe adaptado: Sangue Frio corta raio e ampolas; lado cego dos Tentáculos
+function cvDmgK(e){
+ if(e.cv==='frio'&&(DSRC==='raio'||DSRC==='ampolas'))return .5;
+ if(e.cv==='tentaculos'&&(DSRC==='golpe'||DSRC==='dash')){const b=Math.atan2(P.y-e.y,P.x-e.x);if(Math.abs(angDiff(b,e.ang))>2.1)return 1.3;}
+ return 1;
+}
+// Muco: projétil de bolha bate e volta (true = o projétil acabou sem causar dano)
+function cvMuco(e,p){
+ const s=p.src||(p.spike?'espinhos':p.trail?'dash':'projetil');if(CV_SRC[s]!=='muco')return false;
+ if(!(e.mcT>0)){e.mcT=CV_MUCO_T;shoot(e,Math.atan2(P.y-p.y,P.x-p.x),300,'blob',e.dmg*CV_MUCO_D,7);eproj[eproj.length-1].x=p.x;eproj[eproj.length-1].y=p.y;}
+ for(let i=0;i<3;i++)parts.push({x:p.x,y:p.y,vx:rand(-60,60),vy:rand(-60,60),life:.35,col:'#bfffe6',r:2.5});
+ return true;
+}
+// chefe morto
+function cvDead(e){
+ if(run.mode==='inf'&&ECO.coevo)run.cvBase=cvTotals(); // a próxima janela começa aqui
+ const b=statB();if(b&&b.cv&&b.cv.id===e.id)b.cv.dur=+(e.t||0).toFixed(1);if(b)(b.bd||(b.bd={}))[e.id]=+(e.t||0).toFixed(1); // duração de toda luta de chefe (medição)
+ if(!e.cv)return;const fam=e.cv;
+ if(!META.coevo)META.coevo={};META.coevo[fam]=Object.assign(META.coevo[fam]||{},{s:1,w:1});codexDirty=true;ach('cv_'+fam);
+ if(run.mode==='inf'&&!(P.cvEat&&P.cvEat[fam]))P.cvPend=fam;
+}
+// ---- carta "Engolir a adaptação" (Infinito)
+const cvCard=fam=>({cv:1,id:'cv_'+fam,fam,ic:CV[fam].ic,n:'Engolir: '+CV[fam].n,d:CV[fam].eat});
+function cvOffer(r){
+ const fam=P&&P.cvPend;if(!fam||!cvOn()||P.banned.has('cv_'+fam)||(P.cvEat&&P.cvEat[fam]))return r;
+ if(r.some(c=>c.cv))return r;r=r.slice();if(r.length)r[r.length-1]=cvCard(fam);else r.push(cvCard(fam));return r;
+}
+const cvIsCard=id=>typeof id==='string'&&id.startsWith('cv_')&&!!CV[id.slice(3)];
+function cvCardHTML(c,i){return `<button class="card mcard r-E cv ${P.banMode?'ban':''}" data-id="${c.id}"><div class="rar">👁️ ADAPTAÇÃO DO CHEFE</div><div class="ic">${icH(c.ic)}</div><div class="nm">${c.n}</div><div class="lv">Troca: ocupa esta escolha</div><div class="ds">${c.d}</div><div class="k">[${i+1}]</div></button>`;}
+function cvTake(id){const fam=id.slice(3);if(!P.cvEat)P.cvEat={};P.cvEat[fam]=1;P.cvPend=null;banner={txt:CV[fam].ic+' Você engoliu a adaptação: '+CV[fam].n+'!',t:2.5,big:1};P.hlT=2;finishCardChoice();}
+const cvEat=k=>!!(P&&P.cvEat&&P.cvEat[k]);
+// Códex (no Caranguejo Ancestral): as adaptações já vistas
+function cvCodex(id){
+ if(id!=='ancestral'||!META.coevo||!Object.keys(META.coevo).length)return '';
+ return ' Rainha Vermelha: '+Object.keys(CV).map(k=>{const m=META.coevo[k];return m?CV[k].ic+' '+CV[k].n+(m.w?' ✔️':''):'❔';}).join(' · ')+'.';
+}
+
+/* ---------- desenho ---------- */
+// por baixo do corpo do chefe (ctx já transladado para ele). RM congela, HC contorna.
+function cvDraw(e){
+ const r=e.r,T=RM?0:e.t,C=CV[e.cv];if(!C)return;
+ if(e.cv==='muco'){ctx.fillStyle=`rgba(${C.col},.18)`;ctx.beginPath();ctx.arc(0,0,r*1.18,0,TAU);ctx.fill();
+  ctx.fillStyle=HC?'#ffffff':`rgba(${C.col},.75)`;for(let i=0;i<6;i++){const ph=((T*.5+i/6)%1),a=i*TAU/6+.3;ctx.globalAlpha=RM?.7:1-ph;ctx.beginPath();ctx.ellipse(Math.cos(a)*r*.9,Math.sin(a)*r*.9+ph*r*.6,r*.06,r*.09,0,0,TAU);ctx.fill();}ctx.globalAlpha=1;}
+ else if(e.cv==='tentaculos'){ctx.lineCap='round'; // contorno escuro + cor + ponta, para se ler no fundo escuro da Fossa
+  for(let i=0;i<4;i++){const a=e.ang+(i<2?-1:1)*(.7+(i%2)*.5)+(RM?0:.12*Math.sin(T*2+i)),L=(e.reach||CV_REACH)*.85,tx=Math.cos(a)*L,ty=Math.sin(a)*L,w=3+r*.03;
+   for(let ps2=0;ps2<2;ps2++){ctx.strokeStyle=ps2?(HC?'#ffffff':`rgba(${C.col},.95)`):'rgba(10,14,24,.85)';ctx.lineWidth=ps2?w:w+4;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.6,Math.sin(a)*r*.6);ctx.quadraticCurveTo(Math.cos(a+.3)*L*.6,Math.sin(a+.3)*L*.6,tx,ty);ctx.stroke();}
+   ctx.fillStyle=HC?'#ffffff':`rgb(${C.col})`;ctx.beginPath();ctx.moveTo(tx+Math.cos(a)*14,ty+Math.sin(a)*14);ctx.lineTo(tx+Math.cos(a+1.6)*6,ty+Math.sin(a+1.6)*6);ctx.lineTo(tx+Math.cos(a-1.6)*6,ty+Math.sin(a-1.6)*6);ctx.closePath();ctx.fill();}}
+ else if(e.cv==='cardume'){ctx.strokeStyle=HC?'#ffffff':`rgba(${C.col},.85)`;ctx.lineWidth=HC?5:4;const o=e.st==='gulp'?.9:.5;ctx.beginPath();ctx.arc(0,0,r*1.12,e.ang-o,e.ang+o);ctx.stroke();
+  ctx.fillStyle=HC?'#ffffff':`rgba(${C.col},.9)`;for(let i=-3;i<=3;i++){const a=e.ang+i*o/3.5;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*1.12,Math.sin(a)*r*1.12);ctx.lineTo(Math.cos(a)*r*.95,Math.sin(a)*r*.95);ctx.lineTo(Math.cos(a+.08)*r*1.12,Math.sin(a+.08)*r*1.12);ctx.fill();}}
+ else if(e.cv==='frio'){ctx.fillStyle=`rgba(${C.col},${.22+(RM?0:.05*Math.sin(T*1.5))})`;ctx.beginPath();ctx.arc(0,0,r*1.2,0,TAU);ctx.fill();
+  ctx.strokeStyle=HC?'#ffffff':`rgba(${C.col},.8)`;ctx.lineWidth=2;for(let i=0;i<6;i++){const a=i*TAU/6;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*1.05,Math.sin(a)*r*1.05);ctx.lineTo(Math.cos(a)*r*1.3,Math.sin(a)*r*1.3);ctx.stroke();}}
+}
+// rastro da chicotada (fx 'lash') e aviso da bocada (hazard 'gulp', sem dano)
+function cvDrawFx(){
+ for(const f of fx){if(f.t!=='lash')continue;const k=f.life/f.max;ctx.strokeStyle=HC?'#ffffff':`rgba(255,150,190,${k})`;ctx.lineWidth=(HC?10:8)*k+2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.x+Math.cos(f.a)*f.L,f.y+Math.sin(f.a)*f.L);ctx.stroke();}
+ for(const e of enemies){if(e.dead||e.st!=='lash'||e.sub!=='wind')continue;const a=e.lA||e.ang,L=(e.reach||CV_REACH)+40;ctx.strokeStyle=HC?'rgba(255,255,255,.8)':'rgba(255,150,190,.45)';ctx.lineWidth=68;ctx.lineCap='butt';ctx.globalAlpha=.35+.4*(1-Math.max(0,e.stT)/.9);ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(e.x+Math.cos(a)*L,e.y+Math.sin(a)*L);ctx.stroke();ctx.globalAlpha=1;}
+}
+/* ================= Dieta ================= */
+// [etapa-67] P6 do plano de enriquecimento: você é o que come. Chave ECO.dieta (Campanha e Infinito).
+// Medidor de assimilação por espécie: 5 "comidas" ativam; esvazia 1 a cada 4 s sem comer a espécie.
+// O que conta como comer (desvio do plano, que contava só killEnemy(eaten)):
+//   - engolir, OU abater com golpe ou dash (a mordida). Com o ataque automático, que é o padrão, a maioria das presas
+//     engolíveis morre no golpe antes de encostar em você; e, sem mutações, a Célula não engole nada (ps.eat 0,5 × raio)
+//     e o Caranguejo só engole plâncton, ameba e peixinho. Só com o engolir, a regra "≥ 3 espécies por bioma e estágio"
+//     seria impossível;
+//   - e só NADANDO (velocidade ≥ 35% da sua): é caça. O caranguejo parado nunca assimila (critério da etapa).
+// Uma assimilação por vez. Formatos:
+//   acumulável (20 s): comer a mesma espécie renova; a cada 5 comidas durante o efeito, +1 nível (até 3)
+//   transformação (12 s fixos): não renova; o medidor dela só volta a encher depois que acaba
+// Uma assimilação nova só troca a atual quando o medidor dela se completa. Bônus, nunca requisito.
+// Efeitos aplicados em S() (dietS envolve o cálculo). Só espécies da tabela de nascimento do bioma atual contam.
+// A Fossa só tinha 2 espécies da tabela do plano (plâncton e peixinho): entrou o cuspidor (Glândula), que existe do Recife à Fossa.
+const DIET={
+ plancton:{ic:'🍃',n:'Filtrador',f:'acu',d:'+15% de DNA'},
+ ameba:{ic:'🦠',n:'Membrana',f:'acu',d:'+10% de armadura'},
+ peixinho:{ic:'🐟',n:'Nado de Cardume',f:'acu',d:'+12% de velocidade e de recarga do dash'},
+ aguaviva:{ic:'🎐',n:'Cnidas',f:'acu',d:'quem encosta em você é envenenado'},
+ cavalo:{ic:'🌀',n:'Sucção',f:'acu',d:'+20% de alcance'},
+ cuspidor:{ic:'💦',n:'Glândula',f:'acu',d:'+8% de ritmo de ataque'},
+ baiacu:{ic:'🐡',n:'Inflar',f:'tr',d:'empurra quem encosta em você'},
+ enguia:{ic:'⚡',n:'Descarga',f:'tr',d:'uma descarga a cada 3 s nos inimigos perto'},
+ eremita:{ic:'🐚',n:'Concha',f:'tr',d:'bloqueia o próximo golpe'},
+};
+const DIET_N=5,DIET_DEC=4,DIET_ACU=20,DIET_TR=12,DIET_LV=3,DIET_SWIM=.35;
+const dietOn=()=>!!(ECO.dieta&&run&&P);
+function dietSync(){if(!P.diet)P.diet={m:{},d:{},cur:null};return P.diet;}
+const dietLvK=l=>1+.5*((l||1)-1); // nível 1 ×1, 2 ×1,5, 3 ×2
+// efeitos no S()
+function dietS(o){
+ const c=P&&P.diet&&P.diet.cur;if(!c||!ECO.dieta)return o;const k=dietLvK(c.lvl);
+ if(c.k==='plancton')o.xpMul*=1+.15*k;
+ else if(c.k==='ameba')o.armor=Math.min(.75,o.armor+.1*k);
+ else if(c.k==='peixinho'){o.speed*=1+.12*k;o.dashCd/=1+.12*k;}
+ else if(c.k==='aguaviva')o.cnidas=k;
+ else if(c.k==='cavalo')o.range*=1+.2*k;
+ else if(c.k==='cuspidor')o.atkRate*=1+.08*k;
+ else if(c.k==='baiacu')o.inflar=1;
+ return o;
+}
+// killEnemy: conta a comida (engolida, ou abatida com golpe/dash), nadando
+function dietEat(e,eaten){
+ if(!dietOn()||e.boss||e.nest||!DIET[e.k])return;
+ if(!eaten&&DSRC!=='golpe'&&DSRC!=='dash')return;
+ if(!bSpawnAll()[e.k])return; // só espécies do bioma atual
+ const o=dietSync(),b=statB();
+ if(Math.hypot(P.vx,P.vy)<DIET_SWIM*ps.speed){if(b)b.dtS=(b.dtS||0)+1;return;} // parado não caça
+ if(b)b.dtE=(b.dtE||0)+1;
+ const c=o.cur;
+ if(c&&c.k===e.k){if(DIET[e.k].f==='tr')return;c.t=DIET_ACU;c.n++;if(c.n>=DIET_N&&c.lvl<DIET_LV){c.lvl++;c.n=0;ps=S();texts.push({x:P.x,y:P.y-ps.r-16,txt:DIET[e.k].ic+' nível '+c.lvl,col:'#b6ff9e',life:1.1,s:1,vy:-40});if(b)b.dtL=Math.max(b.dtL||0,c.lvl);}return;}
+ o.m[e.k]=Math.min(DIET_N,(o.m[e.k]||0)+1);o.d[e.k]=0;
+ if(o.m[e.k]>=DIET_N)dietActivate(e.k);
+}
+// tabela do bioma (no Infinito também)
+const bSpawnAll=()=>typeof bSpawn==='function'?bSpawn():BIOMES[run.biome].spawn;
+function dietActivate(k){
+ const o=dietSync(),D=DIET[k];o.m[k]=0;o.d[k]=0;o.cur={k,lvl:1,n:0,t:D.f==='tr'?DIET_TR:DIET_ACU,zT:3};
+ if(k==='eremita'&&!(P.shield>0)){P.shield=1;o.cur.sh=1;}
+ ps=S();banner={txt:D.ic+' ASSIMILAÇÃO: '+D.n+'! '+D.d.charAt(0).toUpperCase()+D.d.slice(1)+' por '+(D.f==='tr'?DIET_TR:DIET_ACU)+' s.',t:2.6};snd(620,.3,'triangle',.05,300,'event');
+ if(!META.diet)META.diet={};if(!META.diet[k]){META.diet[k]=1;codexDirty=true;}
+ const b=statB();if(b){b.dt=b.dt||{};b.dt[k]=(b.dt[k]||0)+1;}
+}
+function dietUpdate(dt){
+ if(!dietOn())return;const o=dietSync();
+ for(const k in o.m){if(!(o.m[k]>0))continue;o.d[k]=(o.d[k]||0)+dt;while(o.d[k]>=DIET_DEC&&o.m[k]>0){o.d[k]-=DIET_DEC;o.m[k]--;}}
+ const c=o.cur;if(!c)return;
+ c.t-=dt;{const b=statB();if(b)b.dtT=(b.dtT||0)+dt;}
+ if(c.k==='enguia'){c.zT-=dt;if(c.zT<=0){c.zT=3;const L=enemies.filter(e=>!e.dead&&!e.under&&e.k!=='plancton'&&!e.nest&&Math.hypot(e.x-P.x,e.y-P.y)<260).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y)).slice(0,3);
+  if(L.length){const pts=[[P.x,P.y]];for(const e of L){pts.push([e.x,e.y]);DSRC='descarga';damageEnemy(e,ps.dmg*.6,Math.atan2(e.y-P.y,e.x-P.x),true);DSRC=null;}if(fx.length<40)fx.push({t:'zap',pts,life:.22,max:.22});snd(1500,.07,'sawtooth',.03,-900,'zap');}}}
+ if(c.k==='baiacu')for(const e of enemies){if(e.dead||e.boss||e.nest||e.alfa||(e.inflT||0)>time)continue;const dx=e.x-P.x,dy=e.y-P.y,d=Math.hypot(dx,dy)||1;if(d<ps.r*1.35+e.r){e.inflT=time+.6;e.vx=dx/d*420;e.vy=dy/d*420;e.st=e.st==='go'?'idle':e.st;}}
+ if(c.t<=0){o.cur=null;ps=S();}
+}
+// hurtPlayer: Cnidas envenena quem encostou
+function dietHurt(src){if(src&&!src.dead&&!src.boss&&ps.cnidas){src.pois=Math.max(src.pois||0,3);src.pdps=Math.max(src.pdps||0,ps.dmg*.25*ps.cnidas);}}
+// pausa e Códex
+function dietHTML(){
+ if(!dietOn()||!P.diet)return '';const o=P.diet,c=o.cur,nx=dietNext();
+ if(!c&&!nx)return '';
+ return '<div class="sub" style="font-size:15px">🍽️ Dieta: '+(c?DIET[c.k].ic+' <b>'+DIET[c.k].n+'</b>'+(DIET[c.k].f==='acu'?' nível '+c.lvl:'')+' ('+Math.ceil(c.t)+' s)':'nenhuma assimilação')+(nx?' · próxima: '+DIET[nx].ic+' '+o.m[nx]+'/'+DIET_N:'')+'</div>';
+}
+// o medidor mais cheio que não é o da assimilação atual (regra 2: o HUD mostra a próxima antes)
+function dietNext(){const o=P.diet;if(!o)return null;const sp=bSpawnAll();let k=null,bx=0;for(const q in o.m)if(o.m[q]>bx&&sp[q]&&(!o.cur||o.cur.k!==q)){bx=o.m[q];k=q;}return k;}
+const dietCodex=k=>DIET[k]&&META.diet&&META.diet[k]?'🍽️ Assimilada: '+DIET[k].ic+' '+DIET[k].n+' ('+DIET[k].d+').':'';
+
+/* ---------- desenho ---------- */
+// junto do jogador (o Frenesi não tem ícone no HUD): ícone da assimilação com anel do tempo e, embaixo, o medidor da próxima
+function drawDiet(){
+ if(!dietOn()||!P.diet||state!=='play')return;const o=P.diet,c=o.cur,nx=dietNext();if(!c&&!nx)return;
+ const x=P.x+ps.r+18,y=P.y-ps.r-18;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
+ if(c){const D=DIET[c.k],k=Math.max(0,c.t/(D.f==='tr'?DIET_TR:DIET_ACU));
+  ctx.fillStyle='rgba(10,14,24,.7)';ctx.beginPath();ctx.arc(x,y,13,0,TAU);ctx.fill();
+  ctx.strokeStyle=HC?'#ffffff':D.f==='tr'?'#ffb35c':'#b6ff9e';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,13,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();
+  ctx.font='14px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';ctx.fillStyle='#fff';ctx.fillText(D.ic,x,y+1);
+  if(D.f==='acu'&&c.lvl>1){ctx.font='bold 10px sans-serif';ctx.fillStyle='#b6ff9e';ctx.fillText(c.lvl,x+12,y-10);}}
+ if(nx){const yy=c?y+20:y,w=28;ctx.font='11px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';ctx.fillStyle='#fff';ctx.globalAlpha=.85;ctx.fillText(DIET[nx].ic,x-w/2-8,yy);
+  ctx.fillStyle='rgba(10,14,24,.7)';ctx.fillRect(x-w/2,yy-3,w,6);ctx.fillStyle=HC?'#ffffff':'#b6ff9e';ctx.fillRect(x-w/2,yy-3,w*o.m[nx]/DIET_N,6);ctx.globalAlpha=1;}
+ ctx.restore();
+}
+/* ================= Teia Trófica ================= */
+// [etapa-68] P5 do plano de enriquecimento: predação entre criaturas, sem criatura nova. Chave ECO.teia (Campanha e Infinito).
+// Um predador que NÃO está atrás do jogador procura uma presa da tabela PREY a menos de 220 px e, ao encostar, a engole.
+// Regras:
+//   1. presa comida por criatura não solta DNA (sai sem passar pelo killEnemy)
+//   2. a caça dura no mínimo 3 s (não troca de alvo) e no máximo 6 s; depois de comer ou desistir, 5 s sem procurar
+//   3. caçando, ignora o jogador até levar dano dele (e.hitT) ou até a caça acabar
+//   4. alimentado (20 s: +10% de tamanho, −20% de velocidade, DNA ×1,6 se morto) não caça
+//   5. predação conta pela metade na pressão populacional da 61
+// A presa (flee/drift, e as outras da tabela) foge do predador que a escolheu.
+// Desempenho: cada predador procura a cada 0,25 s (fase própria, sem sorteio) e só dentro da tela + 300 px.
+// Nenhum sorteio novo: nenhum gerador eco a mais.
+const PREY={enguia:['peixinho','plancton'],polvo:['eremita','peixinho'],tubarao:['peixinho','enguia','baiacu'],lanterna:['peixinho','cavalo'],rival:['eremita']};
+const TEIA_STILL=3,TEIA_FAR=1.6/* medido: com 1× a pressão sobre o jogador caía 25–30% no Abissal e na Fossa */,TEIA_R=220,TEIA_MIN=3,TEIA_MAX=6,TEIA_CD=5,TEIA_FED=20,TEIA_SCAN=.25,TEIA_MARGIN=300;
+const teiaOn=()=>!!(ECO.teia&&run);
+let TV=null; // retângulo visível + margem, recalculado a cada quadro em teiaFrame
+function teiaFrame(){if(!teiaOn()){TV=null;return;}const v=view(),m=TEIA_MARGIN;TV={x0:v.x0-m,x1:v.x1+m,y0:v.y0-m,y1:v.y1+m};}
+const teiaIn=e=>TV&&e.x>TV.x0&&e.x<TV.x1&&e.y>TV.y0&&e.y<TV.y1;
+// chamada no laço de inimigos antes do comportamento padrão; true = está caçando (vetor em TF)
+function teiaHunt(e,dt,dPlayer){
+ if(!TV||e.boss||e.elite||e.alfa||e.nest||!PREY[e.k])return false;
+ if(e.fed>0)return false; // regra 4
+ if(e.huntCd>0)e.huntCd-=dt;
+ let q=e.hunt;
+ if(q){e.huntT+=dt;
+  const stop=q.dead||e.huntT>=TEIA_MAX||(time-(e.hitT==null?-9:e.hitT)<.1&&e.huntT>0)||!teiaIn(e);
+  if(stop){teiaEnd(e,q.dead?'perdeu':e.huntT>=TEIA_MAX?'cansou':!teiaIn(e)?'fora':'jogador');return false;}
+  const dx=q.x-e.x,dy=q.y-e.y,d=Math.hypot(dx,dy)||1;
+  if(d<e.r+q.r*.6){teiaEat(e,q);return false;}
+  if(d>TEIA_R*1.8&&e.huntT>=TEIA_MIN){teiaEnd(e,'longe');return false;}
+  TF.x=dx/d;TF.y=dy/d;return true;}
+ if(e.huntCd>0||!teiaIn(e))return false;
+ if((P.stayT||0)>=TEIA_STILL)return false; // jogador parado (no mesmo lugar há 3 s): o mar não se distrai (medido: sem isso a pressão no parado caía ~25%)
+ if(dPlayer<K_aggro(e)*TEIA_FAR)return false; // perto do jogador (até 1,6× o alcance de perseguição): não caça
+ e.hsT=(e.hsT==null?(e.t%TEIA_SCAN):e.hsT)-dt;if(e.hsT>0)return false;e.hsT=TEIA_SCAN;
+ const L=PREY[e.k];let best=null,bd=TEIA_R;
+ for(const o of enemies){if(o===e||o.dead||o.boss||o.elite||o.alfa||o.nest||o.mig||!L.includes(o.k)||o.hunted)continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd){bd=d;best=o;}}
+ if(!best)return false;
+ e.hunt=best;e.huntT=0;best.hunted=e;{const b=statB();if(b)b.tH=(b.tH||0)+1;}
+ return false;
+}
+function teiaEnd(e,why){const q=e.hunt;if(q&&q.hunted===e)q.hunted=null;e.hunt=null;e.huntCd=TEIA_CD;const b=statB();if(b){b.tEnd=b.tEnd||{};b.tEnd[why]=(b.tEnd[why]||0)+1;}}
+function teiaEat(e,q){
+ q.dead=true;q.hunted=null;e.hunt=null;e.huntCd=TEIA_CD;
+ for(let i=0;i<8;i++)parts.push({x:q.x,y:q.y,vx:rand(-90,90),vy:rand(-90,90),life:.4,col:'bub',r:rand(2,4)});
+ if(!lowQ&&fx.length<40)fx.push({t:'ring',x:q.x,y:q.y,r:e.r*1.4,life:.3,max:.3,col:'255,170,120'});
+ e.fed=TEIA_FED;e.r*=1.1;e.baseR=e.r;e.spd*=.8;e.xp*=1.6;e.sq=1;
+ if(popOn()){const o=popSync();o.half=o.half||{};o.half[q.k]=(o.half[q.k]||0)+1;if(o.half[q.k]>=2){o.half[q.k]=0;popKill(q);}} // regra 5: metade
+ const b=statB();if(b){b.tE=b.tE||{};b.tE[e.k+'>'+q.k]=(b.tE[e.k+'>'+q.k]||0)+1;}
+}
+function teiaUnfeed(e){e.fed=0;e.r/=1.1;e.baseR=e.r;e.spd/=.8;}
+// presa escolhida foge do predador (true = vetor em TF)
+function teiaFlee(e){
+ const p=e.hunted;if(!p)return false;if(p.dead||p.hunt!==e){e.hunted=null;return false;}
+ const dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy)||1;if(d>TEIA_R*1.2)return false;TF.x=dx/d;TF.y=dy/d;return true;
+}
+
+/* ---------- desenho ---------- */
+// postura de caça: traço tracejado do predador até a presa e uma "mira" de três dentes na frente dele; alimentado ganha
+// uma barriga clara. Fica por baixo das criaturas. RM congela o tracejado; HC deixa branco e grosso.
+function drawTeia(){
+ if(!TV)return;const T=RM?0:time;ctx.save();ctx.lineCap='round';
+ for(const e of enemies){if(e.dead)continue;
+  if(e.hunt&&!e.hunt.dead){const q=e.hunt,a=Math.atan2(q.y-e.y,q.x-e.x);
+   ctx.setLineDash(RM?[]:[6,8]);ctx.lineDashOffset=-T*30;ctx.strokeStyle=HC?'rgba(255,255,255,.85)':'rgba(255,170,120,.55)';ctx.lineWidth=HC?3:2;
+   ctx.beginPath();ctx.moveTo(e.x+Math.cos(a)*e.r,e.y+Math.sin(a)*e.r);ctx.lineTo(q.x-Math.cos(a)*q.r,q.y-Math.sin(a)*q.r);ctx.stroke();ctx.setLineDash([]);
+   ctx.strokeStyle=HC?'#ffffff':'rgba(255,170,120,.9)';ctx.lineWidth=HC?3.5:2.5;for(const s of [-1,0,1]){const b=a+s*.35,r0=e.r+6,r1=e.r+16;ctx.beginPath();ctx.moveTo(e.x+Math.cos(b)*r0,e.y+Math.sin(b)*r0);ctx.lineTo(e.x+Math.cos(b)*r1,e.y+Math.sin(b)*r1);ctx.stroke();}}
+  if(e.fed>0){ctx.strokeStyle=HC?'#ffffff':'rgba(255,230,180,.7)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,e.r*1.15,Math.PI*.15,Math.PI*.85);ctx.stroke();}
+ }
+ ctx.restore();
+}
+/* ================= Evento Disputa ================= */
+// [etapa-69] I6 do plano de enriquecimento: primeiro evento que nasce da teia trófica (68). Só entra no sorteio de eventos
+// (RNG.ev, o de sempre) com ECO.teia ligado; desligado, a tabela de pesos é a de antes.
+// Dois predadores alfa brigam por uma carcaça. Os dois se ferem (DISP_HURT da vida por segundo). O que cai sai sem DNA
+// (como a presa da teia) e o vencedor fica ALIMENTADO (regra da 68: DNA ×1,6) e enfraquecido.
+// Escolha do jogador: esperar e derrotar o vencedor, ou intervir cedo (ferir um dos dois) e enfrentar os dois: ao levar
+// dano seu, os dois largam a briga e vêm atrás de você.
+// A briga dura no máximo DISP_MAX s: no fim, quem tem menos vida cai. Nunca durante chefe (os eventos já não começam
+// com chefe vivo, e o chefe que nasce encerra o evento). Respeita o teto de inimigos.
+// Telemetria em run.stat[b].disp: esperou (derrotou o vencedor depois da briga), interveio (feriu um dos dois durante a
+// briga) ou ignorou (nenhum dos dois; fica null na partida e o relatório conta como ignorou).
+EVENTS.disputa={ic:'⚔️',n:'Disputa',col:'#ffb08a',w:1};
+const DISP_BIO=[null,['enguia','enguia'],['polvo','rival'],['lanterna','tubarao'],['rival','tubarao']];
+const DISP_W=[0,2,2,2,2],DISP_HURT=.07,DISP_MAX=18,DISP_T=30,DISP_R=90;
+const dispOn=()=>!!(ECO.teia&&run&&DISP_BIO[run.biome]);
+// peso no sorteio (chamado ao montar a tabela de pesos dos eventos)
+function dispW(wv){if(dispOn())wv.disputa=DISP_W[run.biome]*EVENTS.disputa.w;}
+function dispStart(){
+ const q=evPlace(420,650),L=DISP_BIO[run.biome],ev={type:'disputa',t:DISP_T,x:q.x,y:q.y,ft:0,a:[],done:false,res:null};
+ if(enemies.length>=bioQ(BIO_QCAP)+6){run.ev=null;return;}
+ L.forEach((k,i)=>{const e=makeEnemy(k,ev.x+(i?70:-70),ev.y,false);e.r*=1.25;e.baseR=e.r;e.hp=e.max=e.max*2.2;e.xp*=3;e.dmg*=1.2;e.noEat=true;e.duel=ev;e.cd=99;ev.a.push(e);});
+ run.ev=ev;banner={txt:'⚔️ DISPUTA! Dois predadores brigam pela carcaça: espere o vencedor ou entre na briga.',t:3.2,big:1};snd(90,.8,'sawtooth',.05,40,'event');
+ const b=statB();if(b)(b.disp||(b.disp=[])).push({r:null});
+}
+const dispStat=()=>{const b=statB();return b&&b.disp&&b.disp[b.disp.length-1];};
+// laço de inimigos: true = o duelista se move pelo vetor em TF (rodeia o rival)
+function dispMove(e,dt){
+ const ev=e.duel;if(!ev||ev!==run.ev||ev.done){e.duel=null;return false;}
+ if(time-(e.hitT==null?-9:e.hitT)<.1){dispBreak(ev,'interveio');return false;} // levou dano seu: entra na briga com você
+ const o=ev.a.find(q=>q!==e);if(!o||o.dead)return false;
+ const dx=o.x-e.x,dy=o.y-e.y,d=Math.hypot(dx,dy)||1,cx=ev.x-e.x,cy=ev.y-e.y,cd=Math.hypot(cx,cy)||1;
+ const t=-dy/d,u=dx/d;TF.x=dx/d*(d>e.r+o.r?1:-.4)+t*.8+cx/cd*(cd>DISP_R?.8:0);TF.y=dy/d*(d>e.r+o.r?1:-.4)+u*.8+cy/cd*(cd>DISP_R?.8:0);
+ const l=Math.hypot(TF.x,TF.y)||1;TF.x/=l;TF.y/=l;return true;
+}
+// evento: briga, fim por tempo, quem cai
+function dispUpdate(dt){
+ const ev=run.ev;if(!ev||ev.type!=='disputa')return;
+ const live=ev.a.filter(e=>!e.dead);
+ if(!ev.done){
+  ev.ft+=dt;
+  if(live.length===2){for(const e of live){e.hp-=e.max*DISP_HURT*dt;e.flT=e.flT||0;if(time-e.flT>.4){e.flT=time;e.flash=.08;if(parts.length<400)parts.push({x:(live[0].x+live[1].x)/2,y:(live[0].y+live[1].y)/2,vx:rand(-80,80),vy:rand(-80,80),life:.3,col:'#ff9a7a',r:2.5});}}
+   const lo=live[0].hp/live[0].max<=live[1].hp/live[1].max?live[0]:live[1];
+   if(lo.hp<=0||ev.ft>=DISP_MAX)dispFall(ev,lo);}
+  else if(live.length===1)dispFall(ev,null); // o outro morreu por outra coisa
+  else{ev.done=true;}
+ }
+}
+function dispFall(ev,lo){
+ if(lo){lo.dead=true;lo.duel=null;for(let i=0;i<12;i++)parts.push({x:lo.x,y:lo.y,vx:rand(-120,120),vy:rand(-120,120),life:.5,col:'bub',r:rand(2,5)});} // cai sem DNA
+ const w=ev.a.find(e=>!e.dead);ev.done=true;ev.win=w||null;
+ if(w){w.duel=null;w.cd=1;w.dispWin=dispStat();w.fed=TEIA_FED;w.r*=1.1;w.baseR=w.r;w.spd*=.8;w.xp*=1.6;w.sq=1;texts.push({x:w.x,y:w.y-w.r-10,txt:'VENCEU',col:'#ffd27a',life:1.2,s:1.1,vy:-30});}
+ banner={txt:'⚔️ A disputa acabou: o vencedor está ferido e alimentado.',t:2.6};
+}
+function dispBreak(ev,why){if(ev.done)return;ev.done=true;ev.res=why;for(const e of ev.a){e.duel=null;e.cd=1;e.aggro=Math.max(e.aggro||0,600);}const s=dispStat();if(s)s.r=why;}
+// fim do evento por tempo (o update genérico zera run.ev): solta quem ainda brigava
+function dispEnd(ev){if(!ev||ev.type!=='disputa')return;for(const e of ev.a){e.duel=null;e.cd=1;}}
+// killEnemy: o jogador derrotou o vencedor da disputa
+function dispKill(e){const s=e.dispWin;if(s&&!s.r)s.r='esperou';}
+
+/* ---------- desenho ---------- */
+// carcaça pequena no chão, anel tracejado da arena e seta de borda (como na Queda da Baleia)
+function dispDraw(){
+ const ev=run.ev;if(!ev||ev.type!=='disputa')return;const T=RM?0:time;
+ ctx.save();ctx.translate(ev.x,ev.y);ctx.setLineDash(RM?[]:[10,12]);ctx.lineDashOffset=-T*8;ctx.strokeStyle=HC?'rgba(255,255,255,.7)':'rgba(255,170,120,.35)';ctx.lineWidth=HC?3:2;ctx.beginPath();ctx.arc(0,0,DISP_R+60,0,TAU);ctx.stroke();ctx.setLineDash([]);
+ ctx.lineCap='round';for(let pass=0;pass<2;pass++){ctx.strokeStyle=pass?'#efe3c8':'#4a3c2c';ctx.lineWidth=pass?5:8;ctx.beginPath();ctx.moveTo(-60,4);ctx.quadraticCurveTo(0,-6,55,0);for(let i=0;i<4;i++){const x=-38+i*22;ctx.moveTo(x,-2);ctx.quadraticCurveTo(x+8,-20,x+4,-28);ctx.moveTo(x,-2);ctx.quadraticCurveTo(x+8,20,x+4,28);}ctx.stroke();}
+ ctx.restore();
+ const dx=ev.x-P.x,dy=ev.y-P.y,d=Math.hypot(dx,dy);
+ if(d>360&&!ev.done){const a=Math.atan2(dy,dx),R2=ps.r+44,px=P.x+Math.cos(a)*R2,py=P.y+Math.sin(a)*R2;ctx.save();ctx.translate(px,py);ctx.rotate(a);ctx.fillStyle='rgba(255,170,120,.9)';ctx.strokeStyle=HC?'#ffffff':'#4a2c1c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-6,-8);ctx.lineTo(-6,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+}
+/* ================= Exúvia-Eco ================= */
+// [etapa-70] Laboratório de mecânicas, ideia C. Chave ECO.exuvia. Sem mutação nova: a Muda Chamariz (especial da 56) ganha
+// um comportamento. Enquanto a Muda está num espaço de especial, grava-se a posição a cada 50 ms nos últimos 6 s (buffer
+// circular de 120 pontos) e cada golpe com o ângulo. Ao usar a Muda, a casca nasce no ponto mais antigo e REFAZ o trajeto e
+// os golpes, por trás da horda que te seguia, e continua atraindo inimigos como o chamariz de sempre (P.decoy).
+// Dano do eco = 60% × min(1, deslocamento nos 6 s / 600 px) do dano do golpe; abaixo de 100 px, zero: parado = eco sem dano.
+// Sem efeitos de partes.
+// Fonte DSRC='eco': não é dano automático para a Rainha Vermelha (66) nem comida para a Dieta (67).
+// Repetição ACELERADA: os 6 s gravados são refeitos em ECO_DUR = 4 s (o chamariz de antes durava 3,5 s). Com os 6 s inteiros,
+// a casca ficaria 2,5 s a mais em campo que o chamariz da 56 (escolha a confirmar no playtest).
+const ECO_MIN=100/* zona morta: o empurrão do próprio golpe move uns 40 px; parado continua sem dano */,ECO_N=120,ECO_DT=.05,ECO_WIN=6,ECO_DUR=4,ECO_K=.6,ECO_FULL=600;
+const exuOn=()=>!!(ECO.exuvia&&P&&typeof spOn==='function'&&spOn('muda'));
+function exuRec(dt){
+ if(!exuOn()){if(P.exu)P.exu=null;return;}
+ const o=P.exu||(P.exu={xs:new Float32Array(ECO_N),ys:new Float32Array(ECO_N),i:0,n:0,acc:ECO_DT,hits:[]});
+ o.acc+=dt;while(o.acc>=ECO_DT){o.acc-=ECO_DT;o.xs[o.i]=P.x;o.ys[o.i]=P.y;o.i=(o.i+1)%ECO_N;if(o.n<ECO_N)o.n++;}
+ while(o.hits.length&&time-o.hits[0].t>ECO_WIN)o.hits.shift();
+}
+// doAttack: grava o golpe
+function exuHit(a){const o=P.exu;if(!o||!exuOn())return;o.hits.push({t:time,a});if(o.hits.length>60)o.hits.shift();}
+// trajeto gravado, do mais antigo ao mais novo, e a distância percorrida
+function exuPath(){const o=P.exu;if(!o||o.n<2)return null;const pts=[];let d=0;
+ for(let j=0;j<o.n;j++){const k=(o.i-o.n+j+ECO_N)%ECO_N,x=o.xs[k],y=o.ys[k];if(pts.length){const p=pts[pts.length-1];d+=Math.hypot(x-p.x,y-p.y);}pts.push({x,y});}
+ return {pts,d,t0:time-o.n*ECO_DT};}
+// uso da Muda: o chamariz vira eco (devolve false se não há trajeto: segue o chamariz da 56)
+function exuStart(){
+ if(!exuOn())return false;const w=exuPath();if(!w)return false;
+ const k=w.d<ECO_MIN?0:ECO_K*Math.min(1,w.d/ECO_FULL),p0=w.pts[0];
+ P.decoy={x:p0.x,y:p0.y,ang:P.ang,t:ECO_DUR,n:0,eco:{pts:w.pts,hits:P.exu.hits.filter(h=>h.t>=w.t0).map(h=>({u:(h.t-w.t0)/(w.pts.length*ECO_DT),a:h.a})),k,d:w.d,hi:0}};
+ if(fx.length<40)fx.push({t:'ring',x:p0.x,y:p0.y,r:ps.r*2.2,life:.3,max:.3,col:'255,255,255'});snd(260,.18,'triangle',.04,-120,'decoy');
+ const b=statB();if(b){b.exN=(b.exN||0)+1;b.exD=(b.exD||0)+w.d;b.exK=(b.exK||0)+k;}
+ return true;
+}
+// a cada quadro (junto do tempo do chamariz): anda pelo trajeto e repete os golpes
+function exuStep(d,dt){
+ const e=d.eco,u=Math.min(1,1-d.t/ECO_DUR),f=u*(e.pts.length-1),i=Math.min(e.pts.length-2,Math.floor(f)),r=f-i,a=e.pts[i],b=e.pts[i+1];
+ const nx=a.x+(b.x-a.x)*r,ny=a.y+(b.y-a.y)*r;if(Math.hypot(nx-d.x,ny-d.y)>1)d.ang=Math.atan2(ny-d.y,nx-d.x);d.x=nx;d.y=ny;
+ while(e.hi<e.hits.length&&e.hits[e.hi].u<=u){const h=e.hits[e.hi++];exuSwing(d,h.a,e.k);}
+}
+function exuSwing(d,a,k){
+ if(SETTINGS.allyFx!=='minimo'&&fx.length<40)fx.push({t:'swoosh',x:d.x,y:d.y,a,r:ps.range,life:.2,max:.2,eco:1});
+ if(!(k>0))return; // parado: eco sem dano
+ const o=DSRC;DSRC='eco';let n=0;
+ for(const e of enemies){if(e.dead||e.under||e.k==='plancton')continue;const dx=e.x-d.x,dy=e.y-d.y,dd=Math.hypot(dx,dy);if(dd>ps.range+e.r)continue;if(Math.abs(angDiff(Math.atan2(dy,dx),a))>1.15)continue;damageEnemy(e,ps.dmg*k,Math.atan2(dy,dx),true);n++;}
+ DSRC=o;const b=statB();if(b&&n)b.exH=(b.exH||0)+n;
+}
+// contorno da casca do eco (desenhado por cima da casca do chamariz)
+function exuDraw(d){
+ if(!d.eco)return;const T=RM?0:time;ctx.save();ctx.translate(d.x,d.y);ctx.setLineDash(RM?[]:[6,6]);ctx.lineDashOffset=-T*20;
+ ctx.strokeStyle=HC?'#ffffff':`rgba(230,245,255,${.5+(d.eco.k>0?.3:0)})`;ctx.lineWidth=HC?3:2;ctx.beginPath();ctx.arc(0,0,ps.r*1.35,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+}
 /* ================= Input ================= */
 // [etapa-6] teclas remapeáveis: cada ação tem uma lista de teclas (a 1ª é a principal e pode ser trocada).
 // Esc, Tab e Enter são reservadas (voltar, navegar e confirmar).
@@ -1885,6 +2461,7 @@ function addHitstop(t,big){if(!SETTINGS.hitstop)return;const cap=big?.2:.08;
 function addShake(v,rare){if(RM&&!rare)return;shake=Math.max(shake,v);}
 
 function doAttack(a){
+ exuHit(a); /* [etapa-70] grava o golpe para o eco */
  if(ps.manto&&P.quietT>=2){P.mantoCrit=true;if(fx.length<40)fx.push({t:'ring',x:P.x,y:P.y,r:ps.r*1.8,life:.25,max:.25,col:'200,120,170'});} /* [etapa-46] Manto */
  P.atkCd=1/ps.atkRate;P.atkAnim=1;P.quietT=0; // [etapa-22]
  fx.push({t:'swoosh',x:P.x,y:P.y,a,r:ps.range,life:.2,max:.2});
@@ -1926,7 +2503,7 @@ function bossPace(e,dmg){
  const rk=e.rec>0?2:1;/* janela "recuperando…": teto do excedente dobrado */e.bud=Math.min(cap,e.bud+rate*dt);e.obud=Math.min(oRate*BOSS_PACE.burst*rk,e.obud+oRate*dt*rk);
  const inB=Math.min(dmg,e.bud);e.bud-=inB;
  const ex=Math.min((dmg-inB)*(e.rec>0?BOSS_PACE.overRec:BOSS_PACE.over),e.obud);e.obud-=ex;let d=inB+ex;
- if(!e.phase2&&e.hp-d<=e.max*.5){d=Math.max(0,e.hp-e.max*.5);e.phase2=true;e.shU=time+BOSS_PACE.gate;
+ if(!e.phase2&&e.hp-d<=e.max*(e.p2||.5)/* [etapa-65] bem alimentado */){d=Math.max(0,e.hp-e.max*(e.p2||.5));e.phase2=true;e.shU=time+BOSS_PACE.gate;
   banner={txt:e.name+' se enfurece!',t:2};addHitstop(.15,true);addShake(10);snd(90,.5,'sawtooth',.06,-40,'boss');}
  return d;}
 function damageEnemy(e,dmg,a,noPoison){
@@ -1934,6 +2511,7 @@ function damageEnemy(e,dmg,a,noPoison){
  const lit=run.ev&&run.ev.type==='mar_luz'&&onLight(e);/* [etapa-48] */const crit=!pressLock&&(forceCrit||P.mantoCrit||Math.random()<ps.crit+(lit?.15:0));/* [etapa-46] */if(crit){dmg*=forceCrit?3:(ps.critMul||2);/* [etapa-24] Tamburutaca */addHitstop(.06);} // [etapa-21] golpe do Fantasma: ×3 // [etapa-20] a onda da Pressão Abissal não crita
  dmg*=1-(e.fracture>0?0:(e.armor||0)*(1-(ps.pierceArmor||0)));if(e.brk>0)dmg*=1.25;if(e.fracture>0)dmg*=1.2;/* [etapa-50] */if(lit)dmg*=1.25;if(ps.oppo&&(e.tel>0||e.st==='wind'||e.sub==='wind'||time-(e.hitYouT==null?-9:e.hitYouT)<3))dmg*=ps.oppo;/* [etapa-46] */ // [etapa-22] Pinça-Martelo ignora parte da armadura
  if(e.boss||e.elite)dmg*=1+.25*(P.mut.predador||0)+(ps.eliteDmg||0);
+ if(e.cv)dmg*=cvDmgK(e); /* [etapa-66] Sangue Frio e lado cego */
  if(ESC.n&&shielded(e))dmg*=.6; // [etapa-25] protegido por um Escudeiro
  e.hitT=time; // [etapa-25]
  if(crit&&P.spec==='quelipede'){if(!(e.fracture>0)&&fx.length<40)fx.push({t:'ring',x:e.x,y:e.y,r:e.r*1.6,life:.22,max:.22,col:'255,209,102'});e.fracture=4;} /* [etapa-50] Fratura de Carapaça */
@@ -1947,7 +2525,7 @@ function damageEnemy(e,dmg,a,noPoison){
  const kb=clamp(240*ps.r/e.r,30,420)*(e.boss?.12:1)*(ps.kb||1);
  e.vx+=Math.cos(a)*kb;e.vy+=Math.sin(a)*kb;
  if(P.mut.f_medusa&&!noPoison&&e.pois>0&&stunEnemy(e,.6))snd(900,.06,'square',.03,-300,'stun'); // [etapa-21] Toque de Medusa: golpe em envenenado atordoa
- if(ps.poison>0&&!noPoison){e.pois=Math.max(e.pois,ps.poisT||3);e.pdps=Math.max(e.pdps||0,ps.dmg*ps.poison);} // [etapa-22] Pompom: 2 s
+ if(ps.poison>0&&!noPoison&&e.cv!=='frio'/* [etapa-66] */){e.pois=Math.max(e.pois,ps.poisT||3);e.pdps=Math.max(e.pdps||0,ps.dmg*ps.poison);} // [etapa-22] Pompom: 2 s
  if(ps.steal){const h=Math.min(dmg*ps.steal*(DSRC==='golpe'||DSRC==='dash'?1:.25)/* [etapa-53] dano automático cura 1/4 */,Math.max(0,P.max*.05-(P.stealAcc||0)));P.stealAcc=(P.stealAcc||0)+h;stat('roubo',DSRC||'outro',Math.min(h,P.max-P.hp));healP('roubo',h);/* [etapa-52] */}
  if(e.k!=='plancton'&&(SETTINGS.damageNumbers==='todos'||(SETTINGS.damageNumbers==='criticos'&&crit)))pushDmgText(e,dmg,crit); // [etapa-3/8]
  for(let i=0;i<4;i++)parts.push({x:e.x,y:e.y,vx:rand(-140,140),vy:rand(-140,140),life:rand(.2,.45),col:'#ffffff',r:rand(1.5,3)});
@@ -2029,7 +2607,7 @@ function drawEvFloor(){const ev=run.ev;if(!ev)return;
 function drawNecro(){for(const c of NECRO){if(!c.on)continue;const a=Math.min(1,c.t/1.2),w=RM?0:Math.sin(time*2+c.x)*3;ctx.globalAlpha=.55*a;ctx.fillStyle='rgba(80,255,160,.35)';ctx.beginPath();ctx.arc(c.x,c.y,26+w,0,TAU);ctx.arc(c.x+14,c.y-8,16,0,TAU);ctx.arc(c.x-13,c.y+7,15,0,TAU);ctx.fill();
  ctx.globalAlpha=.85*a;ctx.strokeStyle='#bfffe0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(c.x,c.y,26+w,0,TAU);ctx.stroke();ctx.globalAlpha=1;if(bDark())lights.push({x:c.x,y:c.y,r:70,c:'80,255,160',a:.35*a});}}
 function killEnemy(e,eaten){
- if(e.dead)return;e.dead=true;P.kills++;popKill(e);/* [etapa-61] */if(P.mut.f_necro&&e.k!=='plancton')necroSpawn(e.x,e.y);/* [etapa-45] */
+ if(e.dead)return;e.dead=true;P.kills++;popKill(e);/* [etapa-61] */dietEat(e,eaten);/* [etapa-67] */if(P.mut.f_necro&&e.k!=='plancton')necroSpawn(e.x,e.y);/* [etapa-45] */
  if(eaten){tip('eat');if(e.k==='plancton'||e.r<ps.r*.8)frenzyEat();/* [etapa-47] *//* [etapa-11] */P.eaten++;P.xp+=e.xp*ps.xpMul*(run.ev&&run.ev.type==='floracao'?1.3:1);/* [etapa-26] */const hl=.02*(P.mut.gula||0)+(P.mut.f_leviata?.05:0)+ps.eatHeal;if(hl){const h=Math.min(P.max*hl,Math.max(0,P.max*.05-(P.stealAcc||0)));P.stealAcc=(P.stealAcc||0)+h;healP('engolir',h);/* [etapa-52] */} /* [etapa-32] teto de 5%/s (regra do Bloco 0) */if(P.eaten>=200)ach('glutao');if(P.mut.perola){P.perN++;const L=P.mut.perola;if(P.perN>=[10,8,6][L-1]){P.perN=0;const n=8+2*L;for(let i=0;i<n;i++){const a=i/n*TAU+P.t;proj.push({x:P.x,y:P.y,vx:Math.cos(a)*400,vy:Math.sin(a)*400,life:.7,r:6+P.stage,dmg:ps.dmg*.8,pierce:true,pearl:true,hitS:new Set()});}snd(1500,.12,'sine',.04,600,'pearl');}}/* [etapa-20] Ostra Perlífera */P.sq=.6;snd(520,.06,'square',.04,300,'eat');for(let i=0;i<6;i++)parts.push({x:e.x,y:e.y,vx:rand(-80,80),vy:rand(-80,80),life:.35,col:'#9ff7c2',r:2.5});return;}
  if(e.elite){P.elites++;if(P.elites>=25)ach('elites');}
  if(P.mut.neve&&e.k!=='plancton'){const h=Math.min(P.max*.003*P.mut.neve,Math.max(0,P.max*.05-(P.stealAcc||0)));P.stealAcc=(P.stealAcc||0)+h;healP('neve',h);/* [etapa-52] */} // [etapa-19] Neve Marinha (mesmo teto de 5%/s do roubo de vida)
@@ -2045,19 +2623,19 @@ function killEnemy(e,eaten){
  if(!lowQ&&fx.length<40)fx.push({t:'corpse',e:Object.assign({},e,{trail:e.trail.slice(0,10),flash:0,tel:0}),life:.45,max:.45,spin:rand(-3,3)});
  if(e.k!=='plancton'&&e.r>ps.r*.8)addHitstop(.05);
  snd(160,.12,'sawtooth',.035,-90,'kill');
- if(e.alfa)terKill(e);/* [etapa-60] */
+ if(e.alfa)terKill(e);/* [etapa-60] */if(e.nest)prepNestDead(e.nest);/* [etapa-65] */if(e.dispWin)dispKill(e);/* [etapa-69] */
  if(hasAfx(e,'explosivo')/* [etapa-60] */)hazards.push({t:'boom',x:e.x,y:e.y,r:e.r*3.2,delay:.75,max:.75,dmg:e.dmg*1.4,src:enemyName(e)});
  if(e.elite==='divisor')for(let i=0;i<2;i++){const c=makeEnemy(e.k,e.x+rand(-10,10),e.y+rand(-10,10),false);c.r=c.baseR=KINDS[e.k].r*.8;c.hp=c.max=c.max*.5;c.vx=rand(-200,200);c.vy=rand(-200,200);}
  if(e.boss)onBossDead(e);
 }
 function onBossDead(e){
  P.bossK++;if(P.mut.pura)ach('deverdade');/* [etapa-43] */ // [etapa-30]
-addShake(10,true);addHitstop(.25,true);/* [etapa-4] */if(!e.mini){pendingPart++;toasts.push({txt:'🧩 Troféu do chefe: uma nova parte!',t:3});}descReward(e);/* [etapa-58] */META.bosses=(META.bosses||0)+1;saveMeta();if(META.bosses>=10)ach('gigantes');
+addShake(10,true);addHitstop(.25,true);/* [etapa-4] */if(!e.mini){pendingPart++;toasts.push({txt:'🧩 Troféu do chefe: uma nova parte!',t:3});}descReward(e);/* [etapa-58] */prepBossDead(e);/* [etapa-65] */cvDead(e);/* [etapa-66] */META.bosses=(META.bosses||0)+1;saveMeta();if(META.bosses>=10)ach('gigantes');
  fx.push({t:'ring',x:e.x,y:e.y,r:400,life:1,max:1});
  for(let i=0;i<70;i++)parts.push({x:e.x,y:e.y,vx:rand(-450,450),vy:rand(-450,450),life:rand(.6,1.4),col:['#ffd166','#ff6a3d','#7ff0e6'][i%3],r:rand(3,7)});
  snd(523,.2,'triangle',.06,0,'boss');setTimeout(()=>snd(784,.35,'triangle',.06,0,'boss'),150);
  if(run.mode==='camp'){
-  if(e.mini){run.phase='w2';run.timer=50;banner={txt:'Mini-chefe derrotado!',t:2.5,big:1};}
+  if(e.mini){run.phase='w2';run.timer=50;banner={txt:'Mini-chefe derrotado!',t:2.5,big:1};prepWave(1);/* [etapa-65] */}
   else{
    run.phase='clear';sitesEnd();/* [etapa-59] */
    if(run.biome>=4){run.winT=2.2;banner={txt:'CARCINIZAÇÃO COMPLETA!',t:3,big:1};}
@@ -2158,8 +2736,10 @@ function hurtPlayer(dmg,src,poison,from){ // [etapa-14] from = {x,y,n(nome),k(ti
  if(src)src.hitYouT=time;/* [etapa-46] */if(src&&src.elite==='necrotico'){if(!(P.necT>0))texts.push({x:P.x,y:P.y-ps.r-14,txt:'Cura −50%',col:'#c08cff',life:1.1,s:.9,vy:-40});P.necT=4;}/* [etapa-54] Necrótico */dmg*=1-ps.armor;P.hp-=dmg;P.hurtT=time;/* [etapa-54] */{const b=statB();if(b){b.taken+=dmg;b.hits=(b.hits||0)+1;b.hitPct=(b.hitPct||0)+dmg/P.max;b.hitMax=Math.max(b.hitMax||0,dmg/P.max);statTk(dmg,src,from);}}/* [etapa-52/54] · [etapa-62] por espécie */P.inv=.4;logDamage(dmg,from);if(poison)P.poisSrc=from?from.n:'Veneno';/* [etapa-14] */P.sq=1;addShake(Math.min(8,6+dmg/6));addHitstop(.05);/* [etapa-4] teto 8 */if(P.hp>0&&P.hp/P.max<.3&&!P.lowWarn){P.lowWarn=true;snd(330,.3,'sine',.03,-80,'alert');}/* [etapa-4] aviso discreto ao cruzar 30% */
  texts.push({x:P.x,y:P.y-ps.r,txt:'-'+Math.round(dmg),col:'#ff5d5d',life:.8,s:1.15,vy:-50});
  snd(110,.15,'sawtooth',.06,-50,'hurt');
- if(poison){P.pois=3;P.pdps=dmg*.25;}
- if(src&&ps.thorns>0&&!src.dead){const o=DSRC;DSRC='espinhos';damageEnemy(src,ps.dmg*ps.thorns*1.5+src.dmg*ps.thorns,Math.atan2(src.y-P.y,src.x-P.x),true);DSRC=o;}/* [etapa-52] */
+ if(poison){P.pois=cvEat('frio')?1.5:3;/* [etapa-66] */P.pdps=dmg*.25;}
+ if(src&&ps.thorns>0&&!src.dead){const o=DSRC;DSRC='espinhos';damageEnemy(src,ps.dmg*ps.thorns*1.5+src.dmg*ps.thorns,Math.atan2(src.y-P.y,src.x-P.x),true);DSRC=o;}
+ dietHurt(src); /* [etapa-67] Cnidas */
+ if(ps.thorns>0&&cvEat('tentaculos')){const o=DSRC;DSRC='espinhos';for(const q of enemies)if(q!==src&&!q.dead&&!q.under&&Math.hypot(q.x-P.x,q.y-P.y)<90+q.r)damageEnemy(q,ps.dmg*ps.thorns*1.5,Math.atan2(q.y-P.y,q.x-P.x),true);DSRC=o;} /* [etapa-66] engoliu os Tentáculos *//* [etapa-52] */
  if(P.hp<=0)playerDeath();
 }
 function playerDeath(){
@@ -2256,6 +2836,7 @@ function useSpecial(i){
   if(fx.length<40)fx.push({t:'ring',x:P.x,y:P.y,r:ps.r*2.4,life:.25,max:.25,col:'200,205,215'});snd(520,.12,'square',.04,-300,'shot');}
  else if(id==='tinta'){hazards.push({t:'tinta',x:P.x,y:P.y,r:90+20*L,life:SP_TINTA_T,max:SP_TINTA_T,cef:1,lost:1});P.cefT=Math.max(P.cefT||0,SP_TINTA_T+.1);P.fant=Math.max(P.fant||0,2);
   for(const e of enemies)if(!e.dead&&!e.boss&&e.k!=='plancton'&&Math.hypot(e.x-P.x,e.y-P.y)<400)e.lost=Math.max(e.lost||0,2);snd(240,.25,'sine',.05,-120,'decoy');}
+ else if(id==='muda'&&exuStart()){} /* [etapa-70] Exúvia-Eco: a casca refaz seus passos */
  else if(id==='muda'){let tx,ty;
   if(mouse.active&&!isTouch){tx=(mouse.x-W/2)/zoom+cam.x;ty=(mouse.y-H/2)/zoom+cam.y;const d=Math.hypot(tx-P.x,ty-P.y),m=260;if(d>m){tx=P.x+(tx-P.x)*m/d;ty=P.y+(ty-P.y)*m/d;}}
   else{tx=P.x+Math.cos(P.aim)*150;ty=P.y+Math.sin(P.aim)*150;}
@@ -2317,7 +2898,7 @@ function update(dt){
  time+=dt;P.t+=dt;run.bt+=dt;DSRC=null;statTick(dt);/* [etapa-52] */if(P.necT>0){P.necT-=dt;if(!RM)for(let n=perSec(6,dt);n>0;n--)parts.push({x:P.x+rand(-ps.r,ps.r),y:P.y+rand(-ps.r,ps.r),vx:0,vy:-25,life:.6,col:'#c08cff',r:2});}/* [etapa-54] Necrótico */
  if(P.ancX==null||Math.hypot(P.x-P.ancX,P.y-P.ancY)>60){if(P.stayT>=6&&!RM)fx.push({t:'ring',x:P.x,y:P.y,r:ps.r*1.6,life:.25,max:.25,col:'125,255,176'});P.ancX=P.x;P.ancY=P.y;P.stayT=0;}else{const was=P.stayT||0;P.stayT=was+dt;if(was<6&&P.stayT>=6)texts.push({x:P.x,y:P.y-ps.r-14,txt:'Parado demais: cura −50%',col:'#ffb36b',life:1.6,s:.9,vy:-35});} /* [etapa-54] presa fácil: 6 s num raio de 60 px corta a cura até se mexer */
  P.side=0;if(P.dodgeCd>0)P.dodgeCd-=dt; /* [etapa-43] */
- necroUpdate(dt);/* [etapa-45] */frenUpdate(dt);/* [etapa-47] */if(P.cefT>0)P.cefT-=dt;
+ necroUpdate(dt);/* [etapa-45] */frenUpdate(dt);/* [etapa-47] */dietUpdate(dt);/* [etapa-67] */if(P.cefT>0)P.cefT-=dt;
  if(ps.vala&&Math.hypot(P.vx,P.vy)>40){P.valaT=(P.valaT||0)-dt;if(P.valaT<=0&&hazards.length<80){P.valaT=.35;hazards.push({t:'vala',x:P.x,y:P.y,r:22,life:3,max:3,slow:ps.vala,a:Math.atan2(P.vy,P.vx)});}} /* [etapa-46] Passo Escavador */
  if(P.spec==='portuno'&&(P.dashT>0||(P.wakeT||0)>0)){if(P.dashT<=0)P.wakeT=Math.max(0,P.wakeT-dt);if(Math.hypot(P.vx,P.vy)>30){P.wakeStepT=(P.wakeStepT||0)-dt;if(P.wakeStepT<=0&&hazards.length<80){P.wakeStepT=.04;hazards.push({t:'wake',x:P.x,y:P.y,r:30,life:1.2,max:1.2,a:Math.atan2(P.vy,P.vx)});}}} /* [etapa-50] Esteira */
  {const sp=Math.hypot(P.vx,P.vy);P.stillT=sp<18&&P.dashT<=0?(P.stillT||0)+dt:0;} /* [etapa-44] Carapaça Coralina */
@@ -2393,9 +2974,9 @@ function update(dt){
  if(ps.warn){P.wT-=dt;if(P.wT<=0){P.wT=.2;updWarnPings();}}else if(warnPings[0].on)updWarnPings();
  if(P.nuvemCd>0)P.nuvemCd-=dt;if(P.anemCd>0)P.anemCd-=dt;if(P.cleanFx>0)P.cleanFx-=dt;
  if(P.mut.simbiose){P.cleanT+=dt;const L=P.mut.simbiose;if(P.cleanT>=[8,6,5][L-1]){P.cleanT=0;const had=P.pois>0||P.hp<P.max;P.pois=0;healP('limpador',P.max*(L>=3?.05:.03));/* [etapa-52] */if(had){P.cleanFx=.3;snd(1300,.08,'sine',.03,300,'clean');}}}
- if(P.decoy){P.decoy.t-=dt;if(P.decoy.t<=0)P.decoy=null;}
+ exuRec(dt);/* [etapa-70] */if(P.decoy){P.decoy.t-=dt;if(P.decoy.eco&&P.decoy.t>0)exuStep(P.decoy,dt);/* [etapa-70] */if(P.decoy.t<=0)P.decoy=null;}
  /* [etapa-56] Muda Chamariz virou especial ativo (15a-especiais.js) */
- if(P.mut.anemona){for(const a of P.anem){if(!a.on)continue;a.t-=dt;if(a.hitT>0)a.hitT-=dt;if(a.t<=0){a.on=false;continue;}a.cd-=dt;if(a.cd<=0){a.cd=.5;let prev=null;for(let k=0;k<(P.mut.f_recife?2:1);k++){const e=nearestTo(a.x,a.y,140,prev);if(!e)break;prev=e;DSRC='anemona';/* [etapa-52] */damageEnemy(e,ps.dmg*.3/* [etapa-32] Recife Vivo volta a 30% (2 alvos) */,Math.atan2(e.y-a.y,e.x-a.x),true);e.pois=Math.max(e.pois,1.5);e.pdps=Math.max(e.pdps,ps.dmg*.1);a.hitT=.15;a.tx=e.x;a.ty=e.y;}/* [etapa-21] Recife Vivo: 2 alvos, 25% */}}}
+ if(P.mut.anemona){for(const a of P.anem){if(!a.on)continue;a.t-=dt;if(a.hitT>0)a.hitT-=dt;if(a.t<=0){a.on=false;continue;}a.cd-=dt;if(a.cd<=0){a.cd=.5;let prev=null;for(let k=0;k<(P.mut.f_recife?2:1);k++){const e=nearestTo(a.x,a.y,140,prev);if(!e)break;prev=e;DSRC='anemona';/* [etapa-52] */damageEnemy(e,ps.dmg*.3/* [etapa-32] Recife Vivo volta a 30% (2 alvos) */*(cvEat('cardume')?1.3:1)/* [etapa-66] */,Math.atan2(e.y-a.y,e.x-a.x),true);e.pois=Math.max(e.pois,1.5);e.pdps=Math.max(e.pdps,ps.dmg*.1);a.hitT=.15;a.tx=e.x;a.ty=e.y;}/* [etapa-21] Recife Vivo: 2 alvos, 25% */}}}
  else for(const a of P.anem)a.on=false;
  // órgão elétrico
  if(P.mut.eletro){P.zapT-=dt;if(P.zapT<=0){const tp=!!P.mut.f_tempestade;P.zapT=(3-.5*(P.mut.eletro-1))*(tp?.4:1);
@@ -2406,9 +2987,10 @@ function update(dt){
  // fortaleza espinhosa
  /* [etapa-56] Fortaleza Espinhosa: o anel virou especial ativo (15a-especiais.js) */
  // cardume aliado
- if(P.mut.cardume){const n=P.mut.cardume*2*(P.mut.f_relampago?2:1)+(afAct('migracao')?2:0)/* [etapa-61] Migração */,sp=P.mut.f_relampago?3.4:2.2,R=ps.r*2.4+18;P.allies=P.allies||[];P.allies.length=0; /* [etapa-12] P4 */
+ if(P.cvCard>0)P.cvCard-=dt;/* [etapa-66] cardume comido */
+ if(P.mut.cardume&&!(P.cvCard>0)){const n=P.mut.cardume*2*(P.mut.f_relampago?2:1)+(afAct('migracao')?2:0)/* [etapa-61] Migração */,sp=P.mut.f_relampago?3.4:2.2,R=ps.r*2.4+18;P.allies=P.allies||[];P.allies.length=0; /* [etapa-12] P4 */
   for(let i=0;i<n;i++){const a=P.t*sp+i/n*TAU,rr=R+(i%2)*14;const ax=P.x+Math.cos(a)*rr,ay=P.y+Math.sin(a)*rr;P.allies.push({x:ax,y:ay,a:a+Math.PI/2});
-   for(const e of enemies){if(e.dead||(e.allyCd||0)>time)continue;if(Math.hypot(e.x-ax,e.y-ay)<e.r+7){e.allyCd=time+.45;DSRC='cardume';/* [etapa-52] */damageEnemy(e,ps.dmg*.35*(P.mut.f_relampago?1.5:1)*(P.mut.f_recife&&nearAnem(ax,ay)?1.8:1)/* [etapa-32] */,a,true);/* [etapa-21] */}}}}
+   for(const e of enemies){if(e.dead||(e.allyCd||0)>time)continue;if(Math.hypot(e.x-ax,e.y-ay)<e.r+7){e.allyCd=time+.45;DSRC='cardume';/* [etapa-52] */damageEnemy(e,ps.dmg*.35*(cvEat('cardume')?1.3:1)/* [etapa-66] */*(P.mut.f_relampago?1.5:1)*(P.mut.f_recife&&nearAnem(ax,ay)?1.8:1)/* [etapa-32] */,a,true);/* [etapa-21] */}}}}
  else P.allies=null;
  if(P.mut.mare&&run.ev)healP('mare',P.max*.01*dt);/* [etapa-52] */
  if(run.mode==='inf'&&time>=1200)ach('sobrevivente');
@@ -2420,6 +3002,7 @@ function update(dt){
  if(P.decoy)P.decoy.n=0; // [etapa-20]
  eliteScan(); // [etapa-25]
  terFrame(); // [etapa-60] território com Alfa vivo
+ teiaFrame(); /* [etapa-68] área da predação */
  for(const e of enemies){
   if(e.dead)continue;
   e.t+=dt;e.flash-=dt;e.hitCd-=dt;e.cd-=dt;e.sq=Math.max(0,e.sq-dt*5);e.tel=Math.max(0,e.tel-dt*2);
@@ -2431,6 +3014,7 @@ function update(dt){
   if(hasAfx(e,'regenerador')/* [etapa-60] 2º afixo do Alfa */&&e.hp<e.max&&time-(e.hitT==null?-9:e.hitT)>1.5){e.hp=Math.min(e.max,e.hp+e.max*.02*dt);for(let n=perSec(5,dt);n>0;n--)parts.push({x:e.x+rand(-e.r,e.r)*.6,y:e.y,vx:0,vy:-40,life:.5,col:'#6dff9e',r:2.5});} // [etapa-25] Regenerador
   if(e.k==='nudi'&&!(e.stun>0)){e.gT=(e.gT||0)-dt;if(e.gT<=0&&hazards.length<80){e.gT=.5;hazards.push({t:'gunk',x:e.x,y:e.y,r:20,life:3,max:3,dmg:e.dmg*.5});}} // [etapa-27] rastro (no máx. 6 vivos por nudibrânquio)
   if(e.stunCd>0)e.stunCd-=dt;
+  if(e.fed>0){e.fed-=dt;if(e.fed<=0)teiaUnfeed(e);} /* [etapa-68] alimentado */
   if(!e.boss&&e.stun>0){e.stun-=dt;if(e.st!=='idle'){e.st='idle';e.cd=Math.max(e.cd,.8);}e.tel=0;steer=6;sp=0;} // [etapa-20] atordoado: parado e sem atacar
   else if(e.boss){updateBoss(e,dt,d,ux,uy);}
   else if(e.st==='go'){steer=0;e.stT-=dt;if(e.stT<=0){e.st='idle';}}
@@ -2453,6 +3037,9 @@ function update(dt){
   else if(e.mig){tx=e.mig.x;ty=e.mig.y;sp=170;steer=2;if(d<160){tx+=-ux*.8;ty+=-uy*.8;}} // [etapa-26] migração: segue a rota (desvia de você)
   else if(terFlee(e)){tx=TF.x;ty=TF.y;sp*=1.2;steer=4;} // [etapa-60] presa foge do território do Alfa
   else if(e.homeT>0&&terHome(e,dt)){tx=TF.x;ty=TF.y;sp*=.9;} // [etapa-60] sem o Alfa, volta às pedras
+  else if(e.duel&&dispMove(e,dt)){tx=TF.x;ty=TF.y;steer=4;} /* [etapa-69] duelistas brigam pela carcaça */
+  else if(TV&&e.hunted&&teiaFlee(e)){tx=TF.x;ty=TF.y;sp=Math.max(sp,60)*1.15;steer=4;} /* [etapa-68] presa foge do predador */
+  else if(TV&&PREY[e.k]&&teiaHunt(e,dt,d)){tx=TF.x;ty=TF.y;sp*=1.1;steer=4;} /* [etapa-68] caçando: ignora o jogador */
   else if(e.lost>0){e.lost-=dt;wander();} // [etapa-20] perdeu o alvo: vaga
   else if(e.beh==='drift')wander();
   else if(e.beh==='static')sp=0;
@@ -2495,14 +3082,15 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
    const wE=e.k==='ourico'||e.boss?0:.5;
    if(P.dashT<=0){const pw=wE>0?(1-wE)*(ps.pushK==null?1:ps.pushK):1,ew=1-pw;/* [etapa-44] */e.x+=nx*o*2*ew;e.y+=ny*o*2*ew;P.x-=nx*o*2*pw;P.y-=ny*o*2*pw;}
   }
-  if(d>2700&&!e.boss&&!e.alfa/* [etapa-60] */)e.dead=true;
+  if(d>2700&&!e.boss&&!e.alfa/* [etapa-60] */&&!e.nest/* [etapa-65] */)e.dead=true;
   if(e.mig&&d>Math.hypot(W,H)/zoom+400)e.dead=true; // [etapa-26] o cardume some depois de passar
  }
  compact(enemies,e=>!e.dead); // [etapa-12] P4
 
  // projéteis do jogador
- for(const p of proj){DSRC=p.src||(p.spike?'espinhos':p.trail?'dash':'projetil');/* [etapa-52] */p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
+ for(const p of proj){if(!p.cvB&&cvEat('muco')){p.cvB=1;if(!(p.bounce>0)&&!p.pierce&&!p.trail&&!p.snap){p.bounce=1;if(!p.hitS)p.hitS=new Set();}}/* [etapa-66] engoliu o Muco */DSRC=p.src||(p.spike?'espinhos':p.trail?'dash':'projetil');/* [etapa-52] */p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
   for(const e of enemies){if(e.dead||e.k==='plancton'||(p.hitS&&p.hitS.has(e)))continue;if(Math.hypot(e.x-p.x,e.y-p.y)<e.r+p.r){
+   if(e.cv==='muco'&&cvMuco(e,p)){p.life=0;break;}/* [etapa-66] Muco */
    damageEnemy(e,p.dmg,Math.atan2(p.vy,p.vx));if(p.hitS)p.hitS.add(e);for(let i=0;i<5;i++)parts.push({x:p.x,y:p.y,vx:rand(-80,80),vy:rand(-80,80),life:.3,col:p.toxic?'#a6ff4d':'#bff6ff',r:2});
    if(p.det){p.det=false;for(let k=0;k<2;k++)if(fx.length<40)fx.push({t:'ring',x:p.x,y:p.y,r:55+25*k,life:.25+.1*k,max:.25+.1*k,col:'255,140,190'});for(const o of enemies){if(o.dead)continue;if(Math.hypot(o.x-p.x,o.y-p.y)<80+o.r){damageEnemy(o,ps.dmg*.5,Math.atan2(o.y-p.y,o.x-p.x),true);o.brk=3;}}snd(180,.12,'square',.05,-60,'hit');} /* [etapa-46] detonação dupla */
    if(p.cav){if(fx.length<40)fx.push({t:'ring',x:p.x,y:p.y,r:95,life:.3,max:.3,col:'120,190,255'});for(const o of enemies){if(o.dead||o===e||o.boss)continue;const d=Math.hypot(o.x-p.x,o.y-p.y);if(d<110+o.r&&d>4){o.pullX=p.x;o.pullY=p.y;o.pullT=.25;}}} /* [etapa-45] implosão */
@@ -2527,6 +3115,7 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
  for(const z of hazards){
   if(z.t==='gunk'){z.life-=dt;if(P.inv<=0&&P.dashT<=0&&!(P.gunkCd>0)&&Math.hypot(P.x-z.x,P.y-z.y)<z.r+ps.r*.5){P.gunkCd=.8;hurtPlayer(z.dmg,null,true,{x:z.x,y:z.y,n:'Nudibrânquio',k:'rastro tóxico'});if(state!=='play')return;}continue;} // [etapa-27]
   if(z.t==='ink'||z.t==='tinta'||z.t==='vala'||z.t==='wake'){z.life-=dt;continue;}
+  if(z.t==='gulp'){z.delay-=dt;if(z.delay<=0)z.done=true;continue;} /* [etapa-66] aviso da bocada: sem dano */
   z.delay-=dt;
   if(z.follow&&!z.follow.dead){z.x=z.follow.x;z.y=z.follow.y;}
   if(z.delay<=0){z.done=true;
@@ -2581,11 +3170,12 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
   if(run.ev.type==='corrente')for(let n=perSec(36,dt);n>0;n--){const vr=Math.hypot(W,H)/2/zoom;/* [etapa-1] B1 era .6 por quadro */parts.push({x:P.x+rand(-vr,vr),y:P.y+rand(-vr,vr),vx:Math.cos(run.ev.a)*500,vy:Math.sin(run.ev.a)*500,life:.6,col:'streak',r:1.5});}
   if(run.ev.type==='floracao')for(let n=perSec(RM?4:10,dt);n>0;n--){const vr=Math.hypot(W,H)/2/zoom;parts.push({x:P.x+rand(-vr,vr),y:P.y+rand(-vr,vr),vx:RM?0:rand(-10,10),vy:RM?0:rand(-20,-5),life:1.4,col:'#b6ff9e',r:rand(1.5,3)});} // [etapa-26]
   if(run.ev.type==='erupcao'){run.ev.vT-=dt;if(run.ev.vT<=0){run.ev.vT=rand(2,2.8);const n=3+Math.floor(Math.random()*3);for(let i=0;i<n;i++){const a=rand(0,TAU),d=rand(60,340);hazards.push({t:'vent',x:clamp(P.x+Math.cos(a)*d,40,WORLD-40),y:clamp(P.y+Math.sin(a)*d,40,WORLD-40),r:rand(55,75),delay:1.2,max:1.2,dmg:18*dmgMul(),src:'Erupção termal'});}}} // [etapa-26] fendas: 1,2 s de aviso
-  if(run.ev.t<=0){if(run.ev.type==='mar_luz')for(const s of LUZ)s.on=false;/* [etapa-48] */if(run.ev.type==='fumarola'){for(const f of FUMA)f.on=false;P.heatT=0;}/* [etapa-50] */if(run.ev.type==='migracao')for(const e of enemies)if(e.mig)e.mig=null;run.ev=null;banner={txt:'O mar se acalma.',t:1.5};}}
+  dispUpdate(dt); /* [etapa-69] */
+  if(run.ev&&run.ev.t<=0){dispEnd(run.ev);/* [etapa-69] */if(run.ev.type==='mar_luz')for(const s of LUZ)s.on=false;/* [etapa-48] */if(run.ev.type==='fumarola'){for(const f of FUMA)f.on=false;P.heatT=0;}/* [etapa-50] */if(run.ev.type==='migracao')for(const e of enemies)if(e.mig)e.mig=null;run.ev=null;banner={txt:'O mar se acalma.',t:1.5};}}
  else if(run.mods&&run.mods.mareterna&&!bossAlive&&run.phase!=='clear'&&run.timer>2){run.ev={type:'mare',t:1e4};} // [etapa-31] Maré Eterna
  else if(!bossAlive&&run.phase!=='clear'){run.evT-=dt;if(run.evT<=0&&run.timer>12){
   run.evT=(run.mode==='inf'?rand(35,50):rand(50,70))*evMul();/* [etapa-57] Fossa Ativa · [etapa-58] perfil Agitado */
-  const evs=BIOMES[run.biome].evs||['mare','corrente'],wv={};for(const k of evs)wv[k]=EVENTS[k].w*(cndOn()&&run.cnd.ev&&run.cnd.ev[k]||1);/* [etapa-57] pesos da condição */const pick=pickW(wv,RNG.ev); // [etapa-26] sorteio por bioma · [etapa-31] semente
+  const evs=BIOMES[run.biome].evs||['mare','corrente'],wv={};for(const k of evs)wv[k]=EVENTS[k].w*(cndOn()&&run.cnd.ev&&run.cnd.ev[k]||1);/* [etapa-57] pesos da condição */dispW(wv);/* [etapa-69] Disputa, só com ECO.teia */const pick=pickW(wv,RNG.ev); // [etapa-26] sorteio por bioma · [etapa-31] semente
   if(pick==='mare'){run.ev={type:'mare',t:25};banner={txt:'🌊 MARÉ VERMELHA! Uma horda se aproxima!',t:3,big:1};snd(100,.8,'sawtooth',.05,60,'event');}
   else if(pick==='corrente'){run.ev={type:'corrente',t:18,a:rand(0,TAU)};banner={txt:'💨 CORRENTE MARINHA! Tudo está sendo arrastado.',t:3,big:1};snd(250,.6,'sine',.05,-150,'event');afBanner();/* [etapa-61] */}
   else if(pick==='floracao'){run.ev={type:'floracao',t:15};banner={txt:'🌼 FLORAÇÃO DE PLÂNCTON! Comida por todo lado: +30% de DNA.',t:3,big:1};snd(520,.6,'triangle',.04,300,'event');afBanner();/* [etapa-61] */}
@@ -2593,6 +3183,7 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
   else if(pick==='baleia'){const q=evPlace(320,520);run.ev={type:'baleia',t:24,x:q.x,y:q.y,oT:0,sT:3,sN:0,near:false};banner={txt:'🐋 QUEDA DA BALEIA! Cura e DNA na carcaça — predadores a caminho.',t:3,big:1};snd(55,1.1,'sine',.06,-20,'event');} /* [etapa-48] */
   else if(pick==='mar_luz'){for(const s of LUZ)s.on=false;run.ev={type:'mar_luz',t:16,lT:0};banner={txt:'✨ MARÉ BIOLUMINESCENTE! Inimigos sobre a luz levam +25% de dano.',t:3,big:1};snd(880,.6,'sine',.04,400,'event');}
   else if(pick==='fumarola'){for(const f of FUMA)f.on=false;P.heatT=0;const q=evPlace(320,520);run.ev={type:'fumarola',t:22,x:q.x,y:q.y,near:false,oT:0,pT:0};banner={txt:'♨️ FUMAROLA NEGRA! Superaqueça na pluma e colete nódulos.',t:3,big:1};snd(65,1,'sawtooth',.05,20,'event');}/* [etapa-50] */
+  else if(pick==='disputa')dispStart(); /* [etapa-69] */
   else if(pick==='salmoura'){const pools=[];for(let i=0;i<4;i++){const q=evPlace(160,620);pools.push({x:q.x,y:q.y,r:rand(80,120)});}run.ev={type:'salmoura',t:18,pools};banner={txt:'🧂 LAGO DE SALMOURA! As poças freiam e corroem; DNA nelas vale ×3.',t:3,big:1};snd(140,.8,'triangle',.05,-60,'event');}
   else{run.ev={type:'erupcao',t:14,vT:.8};banner={txt:'♨️ ERUPÇÃO TERMAL! Fendas acendem antes de explodir.',t:3,big:1};snd(70,.9,'sawtooth',.06,30,'event');afBanner();/* [etapa-61] */}
  }}
@@ -2616,20 +3207,22 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
 const K_aggro=e=>e.aggro*(hasAfx(e,'veloz')/* [etapa-60] */?1.3:1)*(!e.elite&&!e.boss&&ps&&ps.camo<1?ps.camo:1); // [etapa-22] Carapaça Decoradora
 
 function updateBoss(e,dt,d,ux,uy){
- const m=e.phase2?1.3:1;
+ const m=e.phase2?(e.m2||1.3)/* [etapa-65] faminto */:1;
  // [etapa-1] S4 2º anel da fase 2 por temporizador do chefe (respeita pausa/hitstop)
  if(e.ring2>0){e.ring2-=dt;if(e.ring2<=0){e.ring2=0;ring(e,20,200,.16);}}
  e.stT-=dt*(e.st!=='move'&&(e.sub==='wind'||e.sub==='fire'||e.sub==='under'||e.sub==='pull')?1:m);/* [etapa-28] */ // [etapa-14] a preparação nunca acelera: sempre ≥ 0,6 s de aviso
  if(e.rec>0)e.rec-=dt;
+ if(e.cvB>0||e.cv)cvUpdate(e,dt,ux,uy); /* [etapa-66] Rainha Vermelha */
  if(e.st==='move'){
-  const k=Math.min(1,dt*2.5);e.vx+=(ux*e.spd*m-e.vx)*k;e.vy+=(uy*e.spd*m-e.vy)*k;
+  const k=Math.min(1,dt*2.5),mv=e.cv?cvMove(e,d):1;/* [etapa-66] Tentáculos mantêm distância */e.vx+=(ux*mv*e.spd*m-e.vx)*k;e.vy+=(uy*mv*e.spd*m-e.vy)*k;
   if(e.stT<=0){
    const list=e.phase2&&!e.atks.includes('summon')?e.atks.concat(['ring']):e.atks;
    let a=list[Math.floor(Math.random()*list.length)];if(a===e.last&&list.length>1)a=list[(list.indexOf(a)+1)%list.length];e.last=a;
    e.st=a;e.sub='wind';
-   if(a==='charge'){e.stT=.85;e.reps=e.phase2?2:1;snd(80,.6,'sawtooth',.05,-30,'boss');}
+   if(cvWind(e,a)){} /* [etapa-66] chicotada e bocada */
+   else if(a==='charge'){e.stT=.85;e.reps=e.phase2?2:1;snd(80,.6,'sawtooth',.05,-30,'boss');}
    else if(a==='ring'){e.stT=.7;}
-   else if(a==='slam'){e.stT=1.25;const n=e.phase2?5:3;for(let i=0;i<n;i++){const off=i?rand(60,200):0,aa=rand(0,TAU);hazards.push({t:'slam',x:P.x+Math.cos(aa)*off+P.vx*.4,y:P.y+Math.sin(aa)*off+P.vy*.4,r:50+e.r*.3,delay:1.15+i*.12,max:1.15+i*.12,dmg:e.dmg*1.1,src:e.name});}snd(120,.4,'triangle',.05,-60,'boss');}
+   else if(a==='slam'){e.stT=1.25;const n=e.phase2?5:3;for(let i=0;i<n;i++){const off=i?rand(60,200):0,aa=rand(0,TAU);hazards.push({t:'slam',x:P.x+Math.cos(aa)*off+P.vx*.4,y:P.y+Math.sin(aa)*off+P.vy*.4,r:50+e.r*.3,delay:(1.15+i*.12)*(e.weak&&e.weak.slam?PREP_SLAM:1)/* [etapa-65] */,max:(1.15+i*.12)*(e.weak&&e.weak.slam?PREP_SLAM:1),dmg:e.dmg*1.1,src:e.name});}snd(120,.4,'triangle',.05,-60,'boss');}
    else if(a==='summon'){e.stT=.7;}
    else if(a==='pulse'){e.stT=1.1;hazards.push({t:'slam',x:e.x,y:e.y,r:e.r*2.8,delay:1.1,max:1.1,dmg:e.dmg*1.2,follow:e,src:e.name});}
    else if(a==='ink'){e.stT=.6;}
@@ -2641,8 +3234,8 @@ function updateBoss(e,dt,d,ux,uy){
  }
  e.vx*=Math.pow(.05,dt);e.vy*=Math.pow(.05,dt);
  if(e.sub==='wind'){e.tel=1;
-  if(e.st==='charge'&&e.stT>.25){e.dirx=ux;e.diry=uy;}
-  if(e.st==='sweep'&&e.stT>.3)e.swA=Math.atan2(uy,ux); // [etapa-28] o cone acompanha você até os 0,3 s finais
+  if(e.st==='charge'&&e.stT>(e.cv==='muco'?.5:.25)/* [etapa-66] Muco gira devagar */){e.dirx=ux;e.diry=uy;}
+  if(e.st==='sweep'&&e.stT>(e.cv==='muco'?.6:.3)/* [etapa-66] */)e.swA=Math.atan2(uy,ux); // [etapa-28] o cone acompanha você até os 0,3 s finais
   if(e.stT<=0){
    if(e.st==='sweep'){e.sub='fire';e.stT=.9;e.fired=0;} // [etapa-28]
    else if(e.st==='burrow'){e.sub='under';e.under=true;e.stT=.9;const hz={t:'slam',x:P.x,y:P.y,r:e.r*1.2+30,delay:.9,max:.9,dmg:e.dmg*1.3,src:e.name,kk:'emersão'};hazards.push(hz);e.hz=hz;}
@@ -2650,7 +3243,8 @@ function updateBoss(e,dt,d,ux,uy){
    else if(e.st==='charge'){e.sub='go';e.stT=.75;addShake(8);/* [etapa-4] */snd(150,.3,'sawtooth',.05,200,'boss');}
    else{
     if(e.st==='ring'){ring(e,e.phase2?20:12,230,rand(0,1));if(e.phase2)e.ring2=.35;}
-    else if(e.st==='summon'){const n=e.phase2?5:3;for(let i=0;i<n;i++){const a=rand(0,TAU);const c=makeEnemy(e.min,clamp(e.x+Math.cos(a)*(e.r+40),30,WORLD-30),clamp(e.y+Math.sin(a)*(e.r+40),30,WORLD-30),false);c.vx=Math.cos(a)*200;c.vy=Math.sin(a)*200;}snd(300,.3,'square',.04,-150,'boss');}
+    else if(e.st==='summon'){const n=e.weak&&e.weak.summon?(e.phase2?2:1)/* [etapa-65] ninhos destruídos */:(e.phase2?5:3);for(let i=0;i<n;i++){const a=rand(0,TAU);const c=makeEnemy(e.min,clamp(e.x+Math.cos(a)*(e.r+40),30,WORLD-30),clamp(e.y+Math.sin(a)*(e.r+40),30,WORLD-30),false);c.vx=Math.cos(a)*200;c.vy=Math.sin(a)*200;}snd(300,.3,'square',.04,-150,'boss');}
+    else if(e.st==='lash'||e.st==='gulp')cvFire(e); /* [etapa-66] */
     else if(e.st==='ink'){for(let i=-2;i<=2;i++)shoot(e,Math.atan2(uy,ux)+i*.3,260,'ink',e.dmg*.5,10);}
     e.st='move';e.stT=rand(1.6,2.6);e.rec=.6; // [etapa-14] janela de recuperação visível
    }
@@ -2664,7 +3258,7 @@ function updateBoss(e,dt,d,ux,uy){
  // [etapa-28] execução dos ataques novos; todos terminam com a janela de recuperação visível (e.rec)
  else if(e.sub==='fire'){const n=9,k=Math.min(n,Math.floor((.9-e.stT)/.1)+1);while(e.fired<k){shoot(e,e.swA-.9+e.fired*(1.8/(n-1)),280,'spike',e.dmg*.7,8);eproj[eproj.length-1].sweep=1;e.fired++;}if(e.stT<=0){e.st='move';e.stT=rand(1.6,2.4);e.rec=.6;}}
  else if(e.sub==='under'){e.vx=e.vy=0;if(e.stT<=0){if(e.hz){e.x=e.hz.x;e.y=e.hz.y;}e.under=false;e.hz=null;e.st='move';e.stT=rand(1.6,2.4);e.rec=.6;addShake(6);}}
- else if(e.sub==='pull'){const dx=e.x-P.x,dy=e.y-P.y,dd=Math.hypot(dx,dy)||1;if(dd>e.r+ps.r&&P.dashT<=0){const f=Math.min(.6*ps.speed,220);P.x+=dx/dd*f*dt;P.y+=dy/dd*f*dt;}if(e.stT<=0){e.st='move';e.stT=rand(1.6,2.4);e.rec=.6;}}
+ else if(e.sub==='pull'){const dx=e.x-P.x,dy=e.y-P.y,dd=Math.hypot(dx,dy)||1;if(dd>(e.reach||e.r+ps.r)/* [etapa-66] */&&P.dashT<=0){const f=Math.min(.6*ps.speed,220);P.x+=dx/dd*f*dt;P.y+=dy/dd*f*dt;}if(e.stT<=0){e.st='move';e.stT=rand(1.6,2.4);e.rec=.6;}}
 }
 
 /* ================= Desenho: formas ================= */
@@ -3511,6 +4105,7 @@ function drawLobsterArmor(r,c2){ /* Lagosta Blindada: placas espessas no cefalot
  ctx.fillStyle=c2;for(const x of [-.3,0,.3])for(const s of [1,-1]){ctx.beginPath();ctx.moveTo(x*r-r*.07,s*r*.4);ctx.lineTo(x*r,s*r*.62);ctx.lineTo(x*r+r*.07,s*r*.4);ctx.closePath();ctx.fill();}}
 function drawEnemy(e){
  if(e.under)return; // [etapa-28] submerso: só as ondulações
+ if(e.nest){ctx.save();ctx.translate(e.x,e.y);drawNest(e);ctx.restore();return;} /* [etapa-65] ninho do chefe */
  const r=e.r,t=e.t,look=e.look;
  const cb=e.c1||LOOKCOL[look][0],c1=e._fl&&e.flash>0&&SETTINGS.flashes>0?shc(cb,.45*SETTINGS.flashes):cb,c2=e.c2||LOOKCOL[look][1]; // [etapa-4] realce em vez de corpo branco
  const lookA=SPR.mode?SPR.lookOv:angDiff(Math.atan2(P.y-e.y,P.x-e.x),e.ang),bl=SPR.mode?SPR.blink:blinking(t,e.bp); // [etapa-12] olhar quantizado no sprite
@@ -3524,6 +4119,7 @@ function drawEnemy(e){
  ctx.save();ctx.translate(e.x,e.y);if(tsc!==1)ctx.scale(tsc,tsc); // [etapa-4]
  if(e.boss&&e.phase2&&!e.dead)ctx.scale(1.08,1.08); // [etapa-14] fúria: postura maior
  if(e.boss&&!e.dead)bossPhaseFx(e);
+ if(e.cv&&!e.dead)cvDraw(e); /* [etapa-66] adaptação da Rainha Vermelha */
 
  if(e.elite)eliteRing(e,r,t); // [etapa-8]
  if(!lowQ&&!SPR.mode)softShadow(r*.12,r*.5,r*1.4,r*.75,.3);
@@ -3677,7 +4273,7 @@ function drawAnemones(){if(!P.mut.anemona)return;for(const a of P.anem){if(!a.on
  ctx.strokeStyle=THEME.aAnem;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();for(let i=0;i<7;i++){const an=i/7*TAU+sw*.15;ctx.moveTo(a.x,a.y);ctx.quadraticCurveTo(a.x+Math.cos(an+.4)*10,a.y+Math.sin(an+.4)*10,a.x+Math.cos(an)*20,a.y+Math.sin(an)*20);}ctx.stroke();
  ctx.fillStyle=THEME.aAnemCore;ctx.beginPath();ctx.arc(a.x,a.y,8,0,TAU);ctx.fill();
  if(a.hitT>0){ctx.strokeStyle='rgba(255,200,225,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(a.tx,a.ty);ctx.stroke();}ctx.restore();}}
-function drawDecoy(){const d=P.decoy;if(!d)return;const o=playerOpts(false);o.player=false;o.atk=0;o.moving=false;o.blink=false;ctx.save();ctx.translate(d.x,d.y);ctx.rotate(d.ang);ctx.globalAlpha=.5*Math.min(1,d.t*2);SHAPES[curShape()](o);ctx.restore();
+function drawDecoy(){const d=P.decoy;if(!d)return;const o=playerOpts(false);o.player=false;o.atk=0;o.moving=false;o.blink=false;ctx.save();ctx.translate(d.x,d.y);ctx.rotate(d.ang);ctx.globalAlpha=.5*Math.min(1,d.t*2);SHAPES[curShape()](o);ctx.restore();exuDraw(d);/* [etapa-70] */
  ctx.save();ctx.globalAlpha=Math.min(1,d.t*2);ctx.setLineDash([7,6]);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(d.x,d.y,ps.r*1.5,0,TAU);ctx.stroke();ctx.restore();}
 function drawWorld(){
  const {x0,y0,x1,y1}=view(),Bm=BIOMES[run.biome];
@@ -3692,7 +4288,7 @@ function drawWorld(){
  if(HC)ctx.globalAlpha=.5; // [etapa-8] alto contraste: decoração a 50%
  for(const d of decor){const m=(d.h||d.r||40)+30;if(d.x<x0-m||d.x>x1+m||d.y<y0-m||d.y>y1+m+(d.h||0))continue;drawDecor(d,false);}
  ctx.globalAlpha=1;
- drawEvFloor();/* [etapa-48] */drawSites();/* [etapa-59] */
+ drawEvFloor();/* [etapa-48] */dispDraw();/* [etapa-69] */drawSites();/* [etapa-59] */
  for(const z of hazards)if(z.t==='vala'){const a=Math.min(1,z.life/z.max*1.5),ca=Math.cos(z.a),sa=Math.sin(z.a);ctx.lineCap='round';ctx.beginPath();for(const sd of [-1,1]){const ox=-sa*sd*7,oy=ca*sd*7;ctx.moveTo(z.x+ox-ca*14,z.y+oy-sa*14);ctx.lineTo(z.x+ox+ca*14,z.y+oy+sa*14);}ctx.strokeStyle='rgba(60,40,20,'+(.35*a)+')';ctx.lineWidth=5;ctx.stroke();ctx.strokeStyle='rgba(255,235,200,'+(.3*a)+')';ctx.lineWidth=2;ctx.stroke();} /* [etapa-46] valas */
  for(const z of hazards)if(z.t==='wake'){const a=Math.min(1,z.life/z.max*1.5),ca=Math.cos(z.a),sa=Math.sin(z.a);ctx.fillStyle='rgba(127,240,230,'+(.12*a)+')';ctx.beginPath();ctx.arc(z.x,z.y,30,0,TAU);ctx.fill();ctx.lineCap='round';ctx.strokeStyle='rgba(160,250,245,'+(.45*a)+')';ctx.lineWidth=2;ctx.beginPath();for(const sd of [-1,1]){const ox=-sa*sd*14,oy=ca*sd*14;ctx.moveTo(z.x+ox-ca*12,z.y+oy-sa*12);ctx.lineTo(z.x+ox+ca*12,z.y+oy+sa*12);}ctx.stroke();} /* [etapa-50] esteira */
  for(const z of hazards)if(z.t==='tinta'){const a=Math.min(1,z.life/z.max*2);ctx.fillStyle=`rgba(255,111,216,${.18*a})`;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();ctx.strokeStyle=`rgba(255,111,216,${.5*a})`;ctx.lineWidth=2;ctx.stroke();}
@@ -3717,14 +4313,15 @@ function drawWorld(){
   if(o.nodule){const pr=11*(RM?1:1+.18*Math.sin(time*6+o.x));ctx.strokeStyle='#ff7a4d';ctx.lineWidth=2.4;ctx.beginPath();ctx.arc(o.x,o.y+bob,pr,0,TAU);ctx.stroke();lights.push({x:o.x,y:o.y,r:34,c:'255,122,77',a:.45});}/* [etapa-50] */
   ctx.translate(o.x,o.y+bob);ctx.rotate(Math.sin(time*2+o.v)*.5);ctx.drawImage(sp.c,-sp.h*k,-sp.h*k,sp.h*2*k,sp.h*2*k);ctx.setTransform(base);lights.push({x:o.x,y:o.y,r:s*6,c:'127,240,230',a:.35});}}
  for(const f of fx)if(f.t==='corpse'){const k=f.life/f.max,e=f.e;if(e.x<x0-200||e.x>x1+200||e.y<y0-200||e.y>y1+200)continue;ctx.save();ctx.globalAlpha=k;ctx.translate(e.x,e.y);ctx.rotate(f.spin*(1-k));const s=1+(1-k)*.35;ctx.scale(s,s*(.4+.6*k));ctx.translate(-e.x,-e.y);drawEnemy(e);ctx.restore();ctx.globalAlpha=1;}
+ drawTeia(); /* [etapa-68] postura de caça */
  // [etapa-4] no máximo 8 inimigos com realce de golpe por quadro (os mais próximos)
  {const fl=[];for(const e of enemies){e._fl=false;if(e.flash>0)fl.push(e);}if(fl.length>8){fl.sort((a,b)=>((a.x-P.x)**2+(a.y-P.y)**2)-((b.x-P.x)**2+(b.y-P.y)**2));fl.length=8;}for(const e of fl)e._fl=true;}
  for(const e of enemies){if(e.x>x0-200&&e.x<x1+200&&e.y>y0-200&&e.y<y1+200){if(state==='play'&&!e.under&&e.x>x0&&e.x<x1&&e.y>y0&&e.y<y1)codexSee('c',e.boss?e.id:e.k);/* [etapa-29] só durante a partida (não no fundo do menu) */drawEnemy(e);if(e.k==='plancton')lights.push({x:e.x,y:e.y,r:28,c:'125,255,176',a:.35});if(e.boss)lights.push({x:e.x,y:e.y,r:e.r*2.6,c:'200,180,255',a:.25});}}
  // [etapa-8] presas (que você consegue engolir) ganham um contorno verde fino quando estão perto
  {ctx.strokeStyle='rgba(125,255,176,.7)';ctx.lineWidth=1.6;for(const e of enemies){if(e.boss||e.k==='plancton'||e.r>=ps.r*ps.eat||e.noEat||e.hide>0)continue;/* [etapa-27] */const d=Math.hypot(e.x-P.x,e.y-P.y);if(d>300)continue;ctx.globalAlpha=clamp((300-d)/120,0,1);ctx.beginPath();ctx.arc(e.x,e.y,e.r*1.25,0,TAU);ctx.stroke();}ctx.globalAlpha=1;}
  for(const f of fx)if(f.t==='ghost')drawGhost(f);else if(f.t==='molt')drawMolt(f); // [etapa-14]
- drawNecro();/* [etapa-45] */drawFren();/* [etapa-47] */
- drawPlayer();
+ drawNecro();/* [etapa-45] */cvDrawFx();/* [etapa-66] */drawFren();/* [etapa-47] */
+ drawPlayer();drawDiet();/* [etapa-67] */
  // [etapa-55] efeitos do jogador: dessaturados, a ~60% (ALLY.a), sem contorno. Acima de allyCap() por quadro viram pontinhos (ou somem no Mínimo); o dano não muda.
  // O golpe de pistola (snap) e o rastro da lagosta são o ataque principal: sempre desenhados.
  {const AA=ALLY.a*(HC?.85:1),cap=allyCap(),T=THEME;let nA=0;ctx.globalAlpha=AA;
@@ -3745,7 +4342,7 @@ function drawTop(){ // por cima da escuridão: perigos, projéteis e textos
  drawSiteArrows(); // [etapa-59]
  const VW=view(),vis=(x,y,m)=>x>VW.x0-m&&x<VW.x1+m&&y>VW.y0-m&&y<VW.y1+m; // [etapa-12] P8
  for(const z of hazards){if(z.t==='ink'||z.t==='tinta'||z.t==='gunk'||z.t==='vala'||!vis(z.x,z.y,z.r+10))continue;const k=1-z.delay/z.max;
-  const col=z.t==='boom'?'255,138,61':'255,70,70';
+  const col=z.t==='boom'?'255,138,61':z.t==='gulp'?'255,210,120'/* [etapa-66] */:'255,70,70';
   ctx.fillStyle=`rgba(${col},${.12+.12*k})`;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();
   if(SETTINGS.colorblindPatterns){ctx.save();ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.clip();ctx.strokeStyle=`rgba(${col},.4)`;ctx.lineWidth=4;for(let d=-z.r*2;d<z.r*2;d+=16){ctx.beginPath();ctx.moveTo(z.x+d-z.r,z.y-z.r);ctx.lineTo(z.x+d+z.r,z.y+z.r);ctx.stroke();}ctx.restore();} // [etapa-8] listras além da cor
   {const last=z.delay<.3;ctx.strokeStyle=`rgba(${col},.95)`;ctx.lineWidth=last?7:3;ctx.setLineDash(last?[]:[14,9]);ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.stroke();ctx.setLineDash([]);} // [etapa-8] tracejado; contínuo e grosso no fim
@@ -4309,7 +4906,7 @@ function creatureImg(id,boss){if(_cimg[id])return _cimg[id];const S2=144,c=docum
   for(let i=0;i<14;i++)e.trail.push({x:-i*e.r*.18,y:Math.sin(i*.6)*e.r*.15});const sc=S2*.32/(e.r*(boss?1.5:1.7));ctx.setTransform(sc,0,0,sc,S2/2,S2/2);e.ang=-.35;drawEnemy(e);}catch(err){}finally{ctx=keep;lowQ=keepLow;SPR.mode=keepSpr;}
  return _cimg[id]=c.toDataURL();}
 function codexItems(tab){
- if(tab==='c')return codexCreatures().map(o=>({key:o.id,seen:!!META.codex.c[o.id],n:o.n+(o.boss?(o.mini?' (mini-chefe)':' (chefe)'):''),img:()=>creatureImg(o.id,o.boss),txt:o.boss?'Chefe. Aparece no fim de um bioma.':'Criatura do fundo do mar.',tag:!o.boss&&META.rare&&META.rare[o.id]?'🐟 Rareou com a sua caça.':'',/* [etapa-61] */fact:CODEX_FACT[o.id]}));
+ if(tab==='c')return codexCreatures().map(o=>({key:o.id,seen:!!META.codex.c[o.id],n:o.n+(o.boss?(o.mini?' (mini-chefe)':' (chefe)'):''),img:()=>creatureImg(o.id,o.boss),txt:o.boss?'Chefe. Aparece no fim de um bioma.'+prepCodex(o.id)/* [etapa-65] */+cvCodex(o.id)/* [etapa-66] */:'Criatura do fundo do mar.',tag:[!o.boss&&META.rare&&META.rare[o.id]?'🐟 Rareou com a sua caça.':'',!o.boss?dietCodex(o.id):''/* [etapa-67] */].filter(Boolean).join(' '),/* [etapa-61] */fact:CODEX_FACT[o.id]}));
  if(tab==='m')return MUTS.map(m=>({key:m.id,seen:!!META.codex.m[m.id],n:m.n,ic:icH(m.ic),txt:m.d(1),tag:RAR[m.r].n,fact:CODEX_FACT['m_'+m.id]}));
  if(tab==='e')return CONDS.map(c=>({key:c.id,seen:!!META.codex.e[c.id],n:c.n,ic:c.ic,txt:c.f,tag:c.b==null?'Geral'+(c.min?' · a partir do bioma '+(c.min+1):''):BIOMES[c.b].ic+' '+BIOMES[c.b].name,fact:c.fav})); // [etapa-57]
  return Object.keys(PARTS).map(id=>{const q=PARTS[id];return {key:id,seen:!!META.codex.p[id],n:q.n,img:()=>partImg(id,56),txt:SLOTS[q.slot].n+' · '+doAnimal(q.from)+'. '+q.d(1),fact:CODEX_FACT['p_'+id]};});}
@@ -4545,7 +5142,8 @@ function biomeClear(){
  ov.querySelectorAll('[data-rota]').forEach(b=>b.onclick=()=>chooseDescida(+b.dataset.rota)); // [etapa-58]
  wireBreakBox(); // [etapa-10]
 }
-function rollCards(){
+function rollCards(){return cvOffer(rollCards0());} /* [etapa-66] carta Engolir a adaptação */
+function rollCards0(){
  const luck=(META.up.luck||0)+(P.mut.sorte||0);
  const w={C:Math.max(20,RAR.C.w-luck*8),R:RAR.R.w+luck*4,E:RAR.E.w+luck*3,L:RAR.L.w+luck*1.2};
  const ok=m=>(P.mut[m.id]||0)<m.max&&!P.banned.has(m.id)&&(!m.req||P.mut[m.req])&&m.r!=='F'&&!(m.dash&&run.mods&&run.mods.semdash)&&!(m.id==='pura'&&P.stage<2)&&!(SP_OF[m.id]&&!P.mut[m.id]&&!spSlots());/* [etapa-56] especiais só com espaço aberto *//* [etapa-31] Sem Dash · [etapa-43] Carcinização Total só com partes */
@@ -4641,7 +5239,7 @@ function wireBreakBox(){const b=$('#brk');if(!b)return;breakShownAt=sessionMin()
 function nearAchHTML(){const c=[['elites',P.elites,25],['glutao',P.eaten,200],['gigantes',META.bosses||0,10],['ascensao',P.asc,5]].filter(([id])=>!META.ach[id]).map(([id,v,mx])=>({a:ACHS.find(x=>x.id===id),v,mx,r:v/mx})).filter(o=>o.v>0).sort((a,b)=>b.r-a.r)[0];
  return c?`<div class="sub" style="font-size:17px">🎯 Quase lá: <b>${c.a.ic} ${c.a.n}</b> — ${Math.min(c.v,c.mx)}/${c.mx} (+${c.a.p} ⚪)</div>`:'';}
 function pauseGame(){if(codexDirty)saveMeta();/* [etapa-29] */setState('pause');
- show(`<h2>Pausado</h2><div class="chain">${partsIcons()}</div><div class="sub">${(P.spec&&SPECS[P.spec]?SPECS[P.spec].ic+' ':'')+mutantName()+(P.asc?' ★'+P.asc:'')} · ${run.mode==='camp'?'Campanha':'Infinito · 🌊 Correntes '+corrTxt()/* [etapa-64] */} · ${DIFFS[run.diff].ic} ${DIFFS[run.diff].name} · ⏱ partida ${fmt(time)} · sessão ${sessionMin()} min</div>${cndOn()?`<div class="sub" style="font-size:15px">Condição: ${COND_BY[run.cnd.id].ic} <b>${COND_BY[run.cnd.id].n}</b>. ${COND_BY[run.cnd.id].f}</div>`:''/* [etapa-57] */}${pfOn()||rwOn(run.rw)?`<div class="sub" style="font-size:15px">${pfOn()?`Ritmo: <b>${PERFIS[run.pf].n}</b>. ${PERFIS[run.pf].f}`:''}${pfOn()&&rwOn(run.rw)?'<br>':''}${rwOn(run.rw)?`Recompensa da descida: ${RECOMP[run.rw].ic} <b>${RECOMP[run.rw].n}</b>. ${RECOMP[run.rw].f}`:''}</div>`:''/* [etapa-58] */}${siteHTML()/* [etapa-59] */}${run.mode==='camp'?mapHTML(run.biome,run.biome):''}
+ show(`<h2>Pausado</h2><div class="chain">${partsIcons()}</div><div class="sub">${(P.spec&&SPECS[P.spec]?SPECS[P.spec].ic+' ':'')+mutantName()+(P.asc?' ★'+P.asc:'')} · ${run.mode==='camp'?'Campanha':'Infinito · 🌊 Correntes '+corrTxt()/* [etapa-64] */} · ${DIFFS[run.diff].ic} ${DIFFS[run.diff].name} · ⏱ partida ${fmt(time)} · sessão ${sessionMin()} min</div>${cndOn()?`<div class="sub" style="font-size:15px">Condição: ${COND_BY[run.cnd.id].ic} <b>${COND_BY[run.cnd.id].n}</b>. ${COND_BY[run.cnd.id].f}</div>`:''/* [etapa-57] */}${pfOn()||rwOn(run.rw)?`<div class="sub" style="font-size:15px">${pfOn()?`Ritmo: <b>${PERFIS[run.pf].n}</b>. ${PERFIS[run.pf].f}`:''}${pfOn()&&rwOn(run.rw)?'<br>':''}${rwOn(run.rw)?`Recompensa da descida: ${RECOMP[run.rw].ic} <b>${RECOMP[run.rw].n}</b>. ${RECOMP[run.rw].f}`:''}</div>`:''/* [etapa-58] */}${siteHTML()/* [etapa-59] */}${prepHTML()/* [etapa-65] */}${dietHTML()/* [etapa-67] */}${run.mode==='camp'?mapHTML(run.biome,run.biome):''}
  <div class="row"><button class="btn alt" id="r" data-autofocus>Continuar</button><button class="btn alt" id="po">⚙️ Opções</button>${FS.can()?'<button class="btn alt" id="pfs" data-fs></button>':''}<button class="btn" id="q">Sair para o menu</button></div>
  ${buildHTML(true)}`); // [etapa-9] build completo, agrupado e com descrições; tempo de sessão aqui (não no HUD)
  {const brk=breakBoxHTML();if(brk){ov.querySelector('.panel h2').insertAdjacentHTML('afterend',brk);wireBreakBox();}} // [etapa-10]
@@ -4706,7 +5304,7 @@ function partScreen(){
 function renderCards(){
  tip('card'); // [etapa-11]
  if(!(P.cur&&P.cur.length))P.cur=rollCont(META.up.cards4?4:3);/* [etapa-64] nunca uma tela vazia */const pick=P.cur;
- const html=pick.map((m,i)=>{if(m.cont)return contCardHTML(m,i);/* [etapa-64] */const l=(P.mut[m.id]||0)+1;let pips='';for(let j=1;j<=m.max;j++)pips+=`<i class="${j<l?'on':j===l?'nx':''}"></i>`;
+ const html=pick.map((m,i)=>{if(m.cont)return contCardHTML(m,i);/* [etapa-64] */if(m.cv)return cvCardHTML(m,i);/* [etapa-66] */const l=(P.mut[m.id]||0)+1;let pips='';for(let j=1;j<=m.max;j++)pips+=`<i class="${j<l?'on':j===l?'nx':''}"></i>`;
   const sub=m.r==='F'?m.fusion.map(id=>icH(MUTS.find(x=>x.id===id).ic)).join(' + '):(l===1?'NOVA MUTAÇÃO':'Nível '+l+' / '+m.max);
   // [etapa-9] "antes → depois" em aumentos de nível; etiquetas DASH e FUSÃO; forma da borda por raridade
   const delta=l>1&&MUT_TOTAL[m.id]?`<div class="delta"><span>${MUT_TOTAL[m.id](l-1)}</span> → <b>${MUT_TOTAL[m.id](l)}</b></div>`:`<div class="ds">${m.d(l)}</div>`;
@@ -4720,7 +5318,7 @@ function renderCards(){
  ov.querySelectorAll('.card').forEach(b=>b.onclick=()=>{
   const id=b.dataset.id;
   if(P.banMode){banMutation(id);return;}
-  if(CONT_BY[id])applyCont(id);/* [etapa-64] */else{const nd=spNeed(id);if(Array.isArray(nd)&&nd.length>1)spReplaceScreen(id);else applyMutation(id);} // [etapa-56] 2 especiais cheios: escolher qual sai
+  if(CONT_BY[id])applyCont(id);/* [etapa-64] */else if(cvIsCard(id))cvTake(id);/* [etapa-66] */else{const nd=spNeed(id);if(Array.isArray(nd)&&nd.length>1)spReplaceScreen(id);else applyMutation(id);} // [etapa-56] 2 especiais cheios: escolher qual sai
  });
 }
 function awardPearls(){
