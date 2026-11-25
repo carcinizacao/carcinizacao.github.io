@@ -164,6 +164,17 @@
   .stats{display:inline-grid;grid-template-columns:auto auto;gap:4px 24px;font-size:19px;margin:10px 0 22px;text-align:left}
   .stats span:nth-child(odd){opacity:.7}
   .stats span:nth-child(even){font-weight:800;color:var(--gold)}
+  /* [etapa-73] história da partida: uma linha por bioma */
+  .hist{max-width:640px;margin:6px auto 0;text-align:left;font-size:14px;line-height:1.25}
+  .fimtab{display:flex;gap:8px;justify-content:center;margin:4px 0 0}
+  .fimtab .sbtn{opacity:.7}.fimtab .sbtn.on{opacity:1;border-color:var(--gold);color:var(--gold)}
+  .fimp.hide{display:none}
+  .fim2{display:grid;grid-template-areas:"a" "b" "c";gap:0 22px}.fimA{grid-area:a}.fimB{grid-area:b;margin-bottom:8px}.fimC{grid-area:c}
+  .fim2 h1{font-size:clamp(28px,6vw,52px)!important;margin:0 0 2px}.fim2 .evo{font-size:clamp(32px,7vw,60px);margin:0;line-height:1.1}.fim2 .map{margin:6px 0 2px}
+  @media (min-aspect-ratio:4/3){.fim2{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-areas:"a b" "c c";align-items:start}.fimC .small{margin-top:4px}.fimB .fimtab{margin-top:0}.fimB .hist{margin-top:8px}}
+  .hist ol{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+  .hist li{padding:3px 8px;border-left:3px solid var(--cyan-a50);background:var(--cyan-a12);border-radius:0 8px 8px 0}
+  .hist li b{color:var(--gold)}
   .small{font-size:13px;opacity:.55;margin-top:18px}
   .evo{font-size:clamp(70px,14vw,130px);margin:10px 0;animation:evoIn .6s ease-out} /* [etapa-9] entrada única ≤ 600 ms */
   @keyframes evoIn{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
@@ -753,7 +764,7 @@ const BIOMES=[
 ];
 // [etapa-26] eventos de bioma: nome, ícone e cor do indicador no topo do HUD; peso no sorteio
 const EVENTS={mare:{ic:'🌊',n:'Maré Vermelha',col:'#ff8a8a',w:4},corrente:{ic:'💨',n:'Corrente',col:'#a9e6ff',w:3},floracao:{ic:'🌼',n:'Floração',col:'#b6ff9e',w:3},migracao:{ic:'🐡',n:'Migração',col:'#ffd98a',w:2},erupcao:{ic:'♨️',n:'Erupção Termal',col:'#ffb08a',w:3},baleia:{ic:'🐋',n:'Queda da Baleia',col:'#f0e2c4',w:2},mar_luz:{ic:'✨',n:'Maré Bioluminescente',col:'#7fe3ff',w:3},salmoura:{ic:'🧂',n:'Lago de Salmoura',col:'#b9c6ff',w:3}/* [etapa-48] */,fumarola:{ic:'♨️',n:'Fumarola Negra',col:'#ff7a4d',w:3}/* [etapa-50] */};
-const SPECS={bento:{id:'bento',n:'Braquiúro Bentônico',title:'Caranguejo Bentônico',ic:'🗿',d:'+40% de vida, +15% de armadura e imune a empurrão. Golpes criam sismos no solo marinho.'},portuno:{id:'portuno',n:'Portunídeo Pelágico',title:'Siri Pelágico',ic:'🏄',d:'+18% de velocidade e +1 carga de dash. Seu dash desvia projéteis e deixa esteira veloz.'},quelipede:{id:'quelipede',n:'Quelípede Guerreiro',title:'Caranguejo Quelípede',ic:'⚔️',d:'+35% de arco e +15% de crítico. Golpes críticos dissolvem 25% da armadura do alvo por 4s.'}}; /* [etapa-50] */
+const SPECS={bento:{id:'bento',n:'Braquiúro Bentônico',title:'Caranguejo Bentônico',ic:'🗿',d:'+40% de vida, +15% de armadura e imune a empurrão. A cada 3 golpes, um sismo no solo marinho.'},portuno:{id:'portuno',n:'Portunídeo Pelágico',title:'Siri Pelágico',ic:'🏄',d:'+18% de velocidade e +1 carga de dash. Seu dash desvia até 4 projéteis e deixa esteira veloz.'},quelipede:{id:'quelipede',n:'Quelípede Guerreiro',title:'Caranguejo Quelípede',ic:'⚔️',d:'+35% de arco e +15% de crítico. Golpes críticos dissolvem 25% da armadura do alvo por 4s.'}}; /* [etapa-50] */
 const BOSSES={
  amebaMae:{name:'Ameba-Mãe',mini:1,look:'ameba',r:55,hp:380,dmg:6/* [etapa-54] era 8: ~40% da vida da Célula por golpe */,spd:55,c:['#c39bff','#6b45c9'],atks:['summon','slam'],min:'ameba'},
  aguaRainha:{name:'Água-viva Rainha',look:'aguaviva',r:62,hp:650,dmg:11,spd:42,c:['#e0619f','#7c1d5a']/* [etapa-40] sino mais profundo que as lacaias */,atks:['pulse','ring','summon'],min:'aguaviva'},
@@ -893,6 +904,7 @@ const UPGRADES=[
  {id:'partReroll',ic:'🎲',n:'Mais Partes',d:'+1 sorteio na tela de partes por partida',max:2,cost:[150,300]},
  // [etapa-63] Saber: conhecimento do mar (vale também na Campanha)
  {id:'carto',sec:'saber',ic:'🗺️',n:'Cartografia',d:'3 descidas para escolher entre os biomas, em vez de 2',max:1,cost:[600]},
+ {id:'memoria',sec:'saber',ic:'🧠',n:'Memória do Predador',d:'Ao fim de cada bioma, veja como enfraquecer os chefes do próximo',max:1,cost:[450]},/* [etapa-72] */
  {id:'faro',sec:'saber',ic:'👃',n:'Faro',d:'O Território do Alfa aparece no mapa assim que você entra no bioma',max:1,cost:[500]},
  // [etapa-63] Profundidade: só no Infinito. Cada nível pede uma camada (lay), aberta pelo recorde no Infinito (LAYERS).
  //   NÚMEROS PROVISÓRIOS: a etapa 64 recalibra efeitos e custos junto com a curva do Infinito.
@@ -939,7 +951,7 @@ let META=(()=>{try{const m=JSON.parse(store.get('carc3_meta')||'{}');return Obje
  if(!META||typeof META!=='object'||Array.isArray(META))META={};
  META.up=obj(META.up);META.forms=obj(META.forms);META.ach=obj(META.ach);META.parts=obj(META.parts);
  META.codex=obj(META.codex);for(const k of ['c','m','p','e'/* [etapa-57] condições */]){META.codex[k]=obj(META.codex[k]);for(const id in META.codex[k])if(META.codex[k][id]!==1)delete META.codex[k][id];} // [etapa-29] Códex (opcional, saneado)
- META.prep=obj(META.prep);META.coevo=obj(META.coevo);META.diet=obj(META.diet);/* [etapa-67] *//* [etapa-65] [etapa-66] */
+ META.desc=obj(META.desc);for(const k in META.desc)if(META.desc[k]!==1)delete META.desc[k];/* [etapa-72] descobertas */META.prep=obj(META.prep);META.coevo=obj(META.coevo);META.diet=obj(META.diet);/* [etapa-67] *//* [etapa-65] [etapa-66] */
  META.rare=obj(META.rare);for(const k in META.rare)if(META.rare[k]!==1)delete META.rare[k]; // [etapa-61] espécies que o jogador já fez rarear
  META.pearls=num(META.pearls);META.bosses=num(META.bosses);
  /* [etapa-63] maior tempo no Infinito (s), em qualquer dificuldade; saves antigos herdam o recorde de carc2_inf_* */
@@ -954,6 +966,11 @@ function ach(id){if(META.ach[id])return;const a=ACHS.find(x=>x.id===id);if(!a)re
 // GERADO por ferramentas/novidades.js a partir de notas_de_versao.md. Não edite à mão: edite o .md e rode o montar.js.
 // Mais novas primeiro. A versão é calculada por versaoJogo() em src/30-telas-2.js.
 const NOVIDADES=[
+ {"data":"2026-11-25","titulo":"Modificador experimental: Covil","html":"<ul><li>Em <b>🎯 Desafio diário e modificadores</b> há um modificador novo, <b>📯 Covil</b> (🧪 experimental, sem bônus de pérolas).</li><li>Com ele, antes de cada chefe aparece um <b>covil</b> no mapa. Fique 1,5 s dentro para <b>chamar o chefe na hora</b> e ganhar pérolas no fim da partida: quanto mais tempo sobrava no relógio, mais pérolas. Se preferir caçar e se preparar, ignore: o chefe vem pelo relógio, como sempre.</li><li>Conte para a gente quando valeu a pena chamar cedo e quando não valeu.</li></ul>"},
+ {"data":"2026-11-25","titulo":"Um Infinito que muda a cada ciclo","html":"<ul><li><b>O Infinito agora tem situações.</b> Cada bioma do Infinito chega com uma <b>condição ecológica</b> e um <b>ritmo</b>, sorteados como nas descidas da Campanha, mas sem parar o jogo para escolher.</li><li>Os <b>marcos</b> também aparecem: carcaças, fontes termais, bolsões de muda, nuvens de neve e o <b>Território</b> do Alfa.</li><li>No <b>Continuar no Infinito</b>, que fica sempre na Fossa, cada chefe principal vencido abre um ciclo novo, com outra condição.</li><li>A faixa de entrada, o HUD, o selo da estirpe e a pausa mostram tudo como na Campanha.</li></ul>"},
+ {"data":"2026-11-25","titulo":"A história da sua partida","html":"<ul><li><b>Cada partida vira uma história.</b> No fim da Campanha, vitória ou derrota, a aba <b>📖 História</b> conta uma linha por bioma: por onde você desceu, a condição e o ritmo, o Alfa derrotado, os chefes que chegaram famintos ou sem os ninhos, o que você assimilou, o que descobriu e as espécies que rarearam.</li><li>Os números de sempre continuam na aba <b>📊 Números</b>.</li><li><b>Estirpe à vista.</b> Quando a condição do bioma deixa todos os elites com os mesmos afixos (Estirpe Blindada, Voraz ou Faminta), um selo embaixo do minimapa mostra quais são. Assim dá para escolher as cartas contra eles.</li></ul>"},
+ {"data":"2026-11-25","titulo":"Descobertas ecológicas","html":"<ul><li><b>O mar guarda segredos.</b> Algumas cenas do ecossistema, vistas ou provocadas pela primeira vez, viram uma <b>🔎 Descoberta</b>: ver uma enguia comer um peixinho, deixar um chefe chegar faminto, destruir os ninhos do Caranguejo Ancestral e outras.</li><li>Cada descoberta libera uma <b>condição nova</b> que passa a poder aparecer nas descidas: Cardume Misto, Presas em Fuga, Floresta Clara, Cardume Acuado, Berçários Abandonados e Estirpe Faminta. Elas trazem situações diferentes, não poder.</li><li>No Códex, a aba Condições mostra o que falta descobrir para liberar cada uma.</li><li><b>Laboratório, Saber:</b> 🧠 <b>Memória do Predador</b>. Ao fim de cada bioma, veja como enfraquecer os chefes do próximo.</li></ul>"},
+ {"data":"2026-11-25","titulo":"Linhagens mais justas","html":"<ul><li>🏄 <b>Siri Pelágico:</b> a esteira desvia projéteis só durante o dash e logo depois dele, e no máximo <b>4 por dash</b>. Quando o pedaço da esteira para de desviar, ele fica azul-acinzentado e continua só dando velocidade.</li><li>A esteira não aparece mais como um círculo vermelho tracejado, que parecia aviso de ataque.</li><li>🗿 <b>Caranguejo Bentônico:</b> o sismo agora sai <b>a cada 3 golpes</b>. Ficar parado deixando o sismo trabalhar já não basta para vencer.</li></ul>"},
  {"data":"2026-11-24","titulo":"A muda que refaz seus passos","html":"<ul><li><b>A Muda Chamariz ganhou um eco.</b> Enquanto ela está num espaço de especial, a carapaça lembra os seus últimos 6 segundos: por onde você nadou e onde golpeou.</li><li>Ao usar a Muda, a casca aparece onde você estava 6 s atrás e <b>refaz o seu caminho e os seus golpes</b>, por trás de quem vinha te seguindo. Ela continua atraindo os inimigos, como antes.</li><li>Quanto mais você se moveu, mais forte o golpe do eco (até 60% do seu). Parado, o eco não fere.</li></ul>"},
  {"data":"2026-11-24","titulo":"Disputa","html":"<ul><li><b>Evento novo:</b> ⚔️ <b>Disputa</b>. Dois predadores grandes brigam por uma carcaça, do Recife em diante. Uma seta aponta para a briga.</li><li>Os dois se ferem. Quem perde some sem deixar DNA, e o vencedor sai ferido e <b>alimentado</b> (vale mais DNA).</li><li>A escolha é sua: <b>espere</b> e derrote o vencedor enfraquecido, ou <b>entre na briga</b> cedo. Se você ferir um dos dois, eles param de brigar e vêm atrás de você.</li></ul>"},
  {"data":"2026-11-24","titulo":"O mar come o mar","html":"<ul><li><b>As criaturas agora caçam umas às outras.</b> Enguias, polvos, tubarões, peixes-lanterna e caranguejos rivais que não estão atrás de você procuram presas por perto: peixinhos, plâncton, ermitões, cavalos-marinhos, baiacus e até enguias.</li><li>Dá para ver quando alguém <b>não</b> está atrás de você: o caçador mostra uma linha tracejada até a presa e dentes à frente. A presa foge.</li><li>Quem comeu fica <b>alimentado</b> por um tempo: maior, mais lento, e vale mais DNA se você o derrotar. Alimentado, não caça.</li><li>Se você atacar um caçador, ele larga a caça e vem atrás de você. Presa comida por outra criatura não deixa DNA.</li></ul>"},
@@ -1045,19 +1062,20 @@ function director(){const exp=1+mins()*1.6;return clamp((P.level-exp)*.08,-.3,.7
 // [etapa-31] sorteios com semente (só conteúdo: cartas, partes, nascimentos/elites e eventos). Visual continua em Math.random.
 // Cada tipo de sorteio tem o próprio gerador, para que uma escolha de carta não mude a sequência de nascimentos e vice-versa.
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-const RNG={cards:Math.random,parts:Math.random,spawn:Math.random,ev:Math.random,eco:Math.random/* [etapa-57] sorteios ecológicos; semeado em seedRun */,ecoR:Math.random/* [etapa-58] descidas e perfil: só nas passagens de bioma */,ecoM:Math.random/* [etapa-59] marcos: só na entrada do bioma */,ecoA:Math.random/* [etapa-60] Território: troca de espécie no nascimento perto do Alfa */,ecoP:Math.random/* [etapa-65] Preparação: posição dos ninhos */,ecoV:Math.random/* [etapa-66] Rainha Vermelha: chefe que observou, no Infinito */};
-function seedRun(seed){let i=0;for(const k in RNG)if(k!=='eco'&&k!=='ecoR'&&k!=='ecoM'&&k!=='ecoA'&&k!=='ecoP'/* [etapa-65] */&&k!=='ecoV'/* [etapa-66] */)RNG[k]=seed==null?Math.random:mulberry32(seed*31+(++i)*1013904223);
+const RNG={cards:Math.random,parts:Math.random,spawn:Math.random,ev:Math.random,eco:Math.random/* [etapa-57] sorteios ecológicos; semeado em seedRun */,ecoR:Math.random/* [etapa-58] descidas e perfil: só nas passagens de bioma */,ecoM:Math.random/* [etapa-59] marcos: só na entrada do bioma */,ecoA:Math.random/* [etapa-60] Território: troca de espécie no nascimento perto do Alfa */,ecoP:Math.random/* [etapa-65] Preparação: posição dos ninhos */,ecoV:Math.random/* [etapa-66] Rainha Vermelha: chefe que observou, no Infinito */,ecoI:Math.random/* [etapa-74] condição e perfil de cada ciclo do Infinito */};
+function seedRun(seed){let i=0;for(const k in RNG)if(k!=='eco'&&k!=='ecoR'&&k!=='ecoM'&&k!=='ecoA'&&k!=='ecoP'/* [etapa-65] */&&k!=='ecoV'/* [etapa-66] */&&k!=='ecoI'/* [etapa-74] */)RNG[k]=seed==null?Math.random:mulberry32(seed*31+(++i)*1013904223);
  /* [etapa-57] RNG.eco nunca é o Math.random: sem semente, nasce do crypto. Assim os sorteios ecológicos não deslocam nenhum outro sorteio (nem o Math.random semeado dos testes) */
  const cs=()=>{try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(performance.now()*1e3))>>>0;}};
- RNG.eco=mulberry32(seed!=null?seed*31+5*1013904223:cs());RNG.ecoR=mulberry32(seed!=null?seed*31+6*1013904223:cs());/* [etapa-58] */RNG.ecoM=mulberry32(seed!=null?seed*31+7*1013904223:cs());/* [etapa-59] */RNG.ecoA=mulberry32(seed!=null?seed*31+8*1013904223:cs());/* [etapa-60] */RNG.ecoP=mulberry32(seed!=null?seed*31+9*1013904223:cs());/* [etapa-65] */RNG.ecoV=mulberry32(seed!=null?seed*31+10*1013904223:cs());/* [etapa-66] */}
+ RNG.eco=mulberry32(seed!=null?seed*31+5*1013904223:cs());RNG.ecoR=mulberry32(seed!=null?seed*31+6*1013904223:cs());/* [etapa-58] */RNG.ecoM=mulberry32(seed!=null?seed*31+7*1013904223:cs());/* [etapa-59] */RNG.ecoA=mulberry32(seed!=null?seed*31+8*1013904223:cs());/* [etapa-60] */RNG.ecoP=mulberry32(seed!=null?seed*31+9*1013904223:cs());/* [etapa-65] */RNG.ecoV=mulberry32(seed!=null?seed*31+10*1013904223:cs());/* [etapa-66] */RNG.ecoI=mulberry32(seed!=null?seed*31+11*1013904223:cs());/* [etapa-74] */}
 /* [etapa-57] chaves de reversibilidade do ciclo 57–70 (enriquecimento do ecossistema). Tudo desligado = jogo da etapa 56.
    Cada etapa acrescenta só a chave do seu sistema. */
-const ECO={conds:true,descidas:true/* [etapa-58] */,perfil:true/* [etapa-58] */,marcos:true/* [etapa-59] */,alfa:true/* [etapa-60] */,pressao:true/* [etapa-61] */,afinidades:true/* [etapa-61] */,preparacao:true/* [etapa-65] */,coevo:true/* [etapa-66] */,dieta:true/* [etapa-67] */,teia:true/* [etapa-68] */,exuvia:true/* [etapa-70] */};
+const ECO={conds:true,descidas:true/* [etapa-58] */,perfil:true/* [etapa-58] */,marcos:true/* [etapa-59] */,alfa:true/* [etapa-60] */,pressao:true/* [etapa-61] */,afinidades:true/* [etapa-61] */,preparacao:true/* [etapa-65] */,coevo:true/* [etapa-66] */,dieta:true/* [etapa-67] */,teia:true/* [etapa-68] */,exuvia:true/* [etapa-70] */,descobertas:true/* [etapa-72] */,infinito:true/* [etapa-74] condições, ritmo e marcos no Infinito */};
 const todaySeed=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();};
 // [etapa-31] modificadores de partida (opcionais, com bônus de pérolas; o bônus somado tem teto de +100%)
 const MODS=[{id:'pincas',ic:'🦀',n:'Só Pinças',b:25,d:'As escolhas de parte só oferecem Armas.'},{id:'semdash',ic:'🚫',n:'Sem Dash',b:40,d:'O dash fica desligado (e cartas de dash não aparecem).'},
  {id:'mareterna',ic:'🌊',n:'Maré Eterna',b:25,d:'Fora das lutas de chefe, a Maré Vermelha nunca acaba.'},{id:'vidro',ic:'🥚',n:'Casca de Vidro',b:60,d:'Metade da vida máxima.'},
- {id:'enxame',ic:'🐟',n:'Enxame',b:40,d:'+50% de criaturas ao mesmo tempo.'},{id:'elites',ic:'⚔️',n:'Elite em Dobro',b:40,d:'O dobro de chance de elites.'}];
+ {id:'enxame',ic:'🐟',n:'Enxame',b:40,d:'+50% de criaturas ao mesmo tempo.'},{id:'elites',ic:'⚔️',n:'Elite em Dobro',b:40,d:'O dobro de chance de elites.'},
+ {id:'covil',ic:'📯',n:'Covil',b:0,d:'Experimental: antes de cada chefe aparece um covil. Fique nele para chamar o chefe na hora e ganhar pérolas pelo tempo que sobrou.'}/* [etapa-75] sem bônus de pérolas no menu */];
 const MODS_ON=(()=>{let a=[];try{a=JSON.parse(store.get('carc_mods')||'[]');}catch(e){a=[];}const o={};if(Array.isArray(a))for(const id of a)if(MODS.some(m=>m.id===id))o[id]=1;return o;})();
 function saveMods(){store.set('carc_mods',JSON.stringify(Object.keys(MODS_ON)));}
 const modBonus=mods=>Math.min(1,MODS.reduce((t,m)=>t+(mods&&mods[m.id]?m.b/100:0),0));
@@ -1141,38 +1159,48 @@ const CONDS=[
  // 🐚 Poça de Maré
  {id:'mare_baixa',fav:'Favorece quem fura armadura, como a Pinça-Martelo e o Quelípede. Quem vive de engolir passa fome.',b:0,ic:'🏝️',n:'Maré Baixa',f:'Pouco plâncton solto e muitos ermitões, que valem o dobro de DNA. A Maré Vermelha vem mais.',sp:{plancton:.5,eremita:2},ev:{mare:2},xp:{eremita:2}},
  {id:'primavera',fav:'Favorece Digestão Voraz e builds de engolir.',b:0,ic:'🌼',n:'Primavera',f:'Florações frequentes e mais amebas: comida farta para quem engole.',sp:{ameba:1.5},ev:{floracao:3}},
+ {id:'cardume_misto',desc:'cnidas'/* [etapa-72] */,fav:'Favorece quem nada caçando e tem dash.',b:0,ic:'🐟',n:'Cardume Misto',f:'Peixinhos por toda a poça: a comida foge de quem não nada atrás.',sp:{peixinho:1.8}/* [etapa-72] medido: cortar plâncton e ameba subia o DNA médio por criatura em 14% */},
  {id:'aguas_vivas',fav:'Favorece alcance e tiros. Contato custa caro.',b:0,ic:'🎐',n:'Enxame de Águas-Vivas',f:'Águas-vivas por toda parte: o contato pesa, quem bate de longe passa melhor.',sp:{aguaviva:2.5,peixinho:.7}},
  // 🐠 Recife de Coral
  {id:'branqueamento',fav:'Favorece Espinhos e Carapaça Grossa. Alcance curto sofre com os ouriços.',b:1,ic:'🤍',n:'Branqueamento',f:'O coral empalideceu: pouco tiro, muito contato. Ouriços e baiacus por todo lado.',sp:{cuspidor:.5,ourico:1.8,baiacu:1.8}},
  {id:'desova',fav:'Favorece Bioluminescência e quem luta sobre a luz.',b:1,ic:'✨',n:'Noite de Desova',f:'O recife escureceu e a Maré Bioluminescente aparece muito mais.',ev:{mar_luz:3},dark:.4},
  {id:'moreias',fav:'Favorece dash, esquiva e golpes rápidos.',b:1,ic:'🐍',n:'Toca das Enguias',f:'Enguias e arraias caçando: rápidas, chegam de longe e cobram esquiva.',sp:{enguia:2,arraia:1.5}},
+ {id:'presas_fuga',desc:'enguia'/* [etapa-72] */,fav:'Favorece quem persegue e alcança alvos em movimento.',b:1,ic:'🏃',n:'Presas em Fuga',f:'Cardumes migrando e enguias atrás deles: a caça acontece em toda parte.',sp:{peixinho:1.8,plancton:1.3,enguia:1.5},ev:{migracao:2}},
  // 🌿 Floresta de Algas
  {id:'inverno',fav:'Favorece Bioluminescência, Isca Luminosa e Farol Abissal.',b:2,ic:'🌑',n:'Inverno Escuro',f:'A floresta está bem mais escura e cheia de polvos. Luz própria vale ouro.',sp:{polvo:1.5},dark:.55},
  {id:'baleias',fav:'Favorece quem nada atrás das carcaças e dos cardumes.',b:2,ic:'🐋',n:'Rota das Baleias',f:'Carcaças e cardumes de passagem com frequência: cura e DNA para quem vai buscar.',ev:{baleia:3,migracao:2}},
  {id:'territorio',fav:'Favorece quem fura carapaça e quer subir de nível rápido.',b:2,ic:'🦀',n:'Disputa de Território',f:'Caranguejos rivais por toda parte, e cada um vale mais DNA.',sp:{rival:2},xp:{rival:1.5}},
+ {id:'floresta_clara',desc:'polvo'/* [etapa-72] */,fav:'Favorece alcance e quem lê o campo de longe.',b:2,ic:'☀️',n:'Floresta Clara',f:'Luz entre as algas, com mais polvos e cavalos-marinhos à vista.',sp:{polvo:1.4,cavalo:1.5},ev:{corrente:1.5},dark:.1},
  // 🌑 Zona Abissal
  {id:'neve',fav:'Favorece builds de engolir, mas a comida atrai predadores.',b:3,ic:'❄️',n:'Neve Marinha Densa',f:'Muita comida caindo do alto, e as lanternas vêm atrás dela.',sp:{plancton:3,lanterna:1.5}},
  {id:'tubaroes',fav:'Favorece alcance, dash e armadura.',b:3,ic:'🦈',n:'Caçada dos Tubarões',f:'Tubarões em caça: o contato pesa, a esquiva e o alcance valem mais.',sp:{tubarao:2,peixinho:1.5}},
  {id:'mare_luz',fav:'Favorece quem se posiciona sobre a luz.',b:3,ic:'🌌',n:'Abismo Aceso',f:'Menos escuro que o normal, e o mar brilha com frequência.',ev:{mar_luz:3},dark:.45},
+ {id:'cardume_acuado',desc:'tubarao'/* [etapa-72] */,fav:'Favorece quem caça as presas antes dos predadores.',b:3,ic:'🐠',n:'Cardume Acuado',f:'Cardumes encurralados no escuro: comida farta para você e para os predadores.',sp:{peixinho:2.5,cavalo:1.5,lanterna:.8}},
  // 🌋 Fossa
  {id:'fossa_ativa',fav:'Favorece Quimiossíntese.',b:4,ic:'🌋',n:'Fossa Ativa',f:'Fumarolas e erupções muito mais frequentes. Quimiossíntese vira estratégia.',ev:{fumarola:2,erupcao:2},evI:.7},
  {id:'salmoura',fav:'Favorece mobilidade e cura.',b:4,ic:'🧂',n:'Salmoura Exposta',f:'Lagos de salmoura aparecem muito mais, e os nudibrânquios também.',ev:{salmoura:3},sp:{nudi:1.5}},
  {id:'polvos',fav:'Favorece dano alto em alvo único, como Garras Afiadas.',b:4,ic:'🐙',n:'Ninho de Polvos',f:'Polvos grandes por toda parte e pouco tiro.',sp:{polvo:1.8,cuspidor:.6}},
+ {id:'bercarios',desc:'ninhos'/* [etapa-72] */,fav:'Favorece quem troca de alvo e aproveita os eventos.',b:4,ic:'🥚',n:'Berçários Abandonados',f:'Sem os ninhos, há menos caranguejos rivais; tubarões e nudibrânquios ocupam o espaço, e os eventos vêm mais.',sp:{rival:.8,tubarao:1.6,nudi:1.5},evI:.8/* [etapa-72] medido: rival .65 e tubarão 1.3 deixavam a Fossa fácil para o parado */},
  // gerais (a partir do bioma min)
  {id:'blindada',fav:'Favorece a Pinça-Martelo e golpes que furam armadura.',b:null,min:1,ic:'🛡️',n:'Estirpe Blindada',f:'Os elites deste bioma são todos blindados ou escudeiros. Golpes fortes furam.',afx:['blindado','escudeiro']},
  {id:'voraz',fav:'Favorece dano alto e rápido: derrube os elites primeiro.',b:null,min:2,ic:'🧲',n:'Estirpe Voraz',f:'Os elites deste bioma são magnéticos ou necróticos: a cura e o DNA ficam sob ataque.',afx:['magnetico','necrotico']},
+ {id:'estirpe_faminta',desc:'faminto'/* [etapa-72] */,fav:'Favorece quem se mexe e derruba os elites de longe.',b:null,min:1,ic:'🍽️',n:'Estirpe Faminta',f:'Os elites deste bioma são velozes ou explosivos: quem fica parado leva o estouro.',afx:['veloz','explosivo']},
 ];
 const COND_BY={};for(const c of CONDS)COND_BY[c.id]=c;
 let ECO_FORCE=null; // [etapa-57] testes: id de uma condição para forçar (só nos biomas onde ela vale)
-const cndOn=()=>!!(run&&run.cnd&&run.cnd.bi===run.biome&&run.mode==='camp');
+const cndOn=()=>!!(run&&run.cnd&&run.cnd.bi===run.biome&&(run.mode==='camp'||infEco()/* [etapa-74] */));
 const bSpawn=()=>cndOn()&&run.cnd.spawn||BIOMES[run.biome].spawn;
 const bDark=()=>run?(cndOn()&&run.cnd.dark!=null?run.cnd.dark:BIOMES[run.biome].dark):0;
-function condList(b){return CONDS.filter(c=>c.b===b||(c.b==null&&b>=c.min));}
+function condList(b){return CONDS.filter(c=>(c.b===b||(c.b==null&&b>=c.min))&&!condLocked(c)/* [etapa-72] trancada até a descoberta */);}
+// [etapa-74] pacote da condição c no bioma b (estado em run.cnd; BIOMES nunca muda)
+function condObj(c,b){const B=BIOMES[b],o={id:c.id,bi:b};
+ if(c.sp){o.spawn={};for(const k in B.spawn)o.spawn[k]=B.spawn[k]*(c.sp[k]==null?1:c.sp[k]);}
+ if(c.ev)o.ev=c.ev;if(c.evI)o.evI=c.evI;if(c.afx)o.afx=c.afx;if(c.dark!=null)o.dark=c.dark;if(c.xp)o.xp=c.xp;return o;}
 // ao entrar no bioma (newGame e enterNextBiome). Só na campanha; o Infinito fica para a etapa 69.
 // [etapa-58] ch = descida escolhida ({id,rw,pf}); sem descida, a condição é sorteada como na 57.
 function applyCond(ch){
  const prev=run.pf;run.cnd=null;run.cndShow=0;run.pf=null;run.rw=null;run.sites=[];/* [etapa-59] */
- if(run.mode!=='camp')return;
+ if(run.mode!=='camp'){infCond();return;} /* [etapa-74] Infinito: condição do ciclo */
  const b=run.biome;let c=null;
  if(ECO.conds){
   if(ECO_FORCE){const f=COND_BY[ECO_FORCE];if(f&&(f.b===b||(f.b==null&&b>=f.min)))c=f;}
@@ -1180,10 +1208,7 @@ function applyCond(ch){
   else if(!(b===0&&!(META.bosses>0))){const l=condList(b);if(l.length)c=l[Math.floor(RNG.eco()*l.length)];} // proteção de quem está aprendendo: sem condição na Poça até a 1ª vitória sobre a Ameba-Mãe
  }
  if(c){
-  const B=BIOMES[b],o={id:c.id,bi:b};
-  if(c.sp){o.spawn={};for(const k in B.spawn)o.spawn[k]=B.spawn[k]*(c.sp[k]==null?1:c.sp[k]);}
-  if(c.ev)o.ev=c.ev;if(c.evI)o.evI=c.evI;if(c.afx)o.afx=c.afx;if(c.dark!=null)o.dark=c.dark;if(c.xp)o.xp=c.xp;
-  run.cnd=o;
+  run.cnd=condObj(c,b); /* [etapa-74] o mesmo pacote serve ao Infinito */
  }
  if(ECO.perfil)run.pf=ch&&ch.pf||rollPerfil(b,c&&c.id,prev); // [etapa-58]
  if(ch&&ch.rw){run.rw=ch.rw;run.rwB=b;}
@@ -1221,7 +1246,7 @@ const RECOMP={
 };
 // nome do caminho de cada condição (os da Poça não aparecem: ninguém desce para a Poça)
 const ROTA_N={branqueamento:'Pelas fendas do recife',desova:'Pela noite do recife',moreias:'Pelas tocas de pedra',inverno:'Pela sombra das algas',baleias:'Pela rota dos gigantes',territorio:'Pelas pedras disputadas',neve:'Pela neve que cai',tubaroes:'Pelas águas de caça',mare_luz:'Pelo abismo aceso',fossa_ativa:'Pelas fendas quentes',salmoura:'Pelos lagos salgados',polvos:'Pelas tocas dos polvos',blindada:'Pela trilha das carapaças',voraz:'Pela corrente quente'};
-const pfOn=()=>!!(run&&run.pf&&run.mode==='camp');
+const pfOn=()=>!!(run&&run.pf&&(run.mode==='camp'||infEco()/* [etapa-74] */));
 const rwOn=k=>!!(run&&run.rw===k&&run.rwB===run.biome&&run.mode==='camp'); // só no bioma da descida
 const evMul=()=>(cndOn()&&run.cnd.evI||1)*(pfOn()&&run.pf==='agitado'?.75:1); // Agitado: intervalo entre eventos −25%
 const descOn=()=>!!(ECO.descidas&&ECO.conds&&run&&run.mode==='camp');
@@ -1297,11 +1322,11 @@ const SITE_BIO=[['leito','carcaca','muda','desova'],['desova','leito','carcaca',
 const SITE_COND={fossa_ativa:'termal',baleias:'carcaca',primavera:'leito',neve:'neve',desova:'desova',mare_baixa:'carcaca'};
 const SITE_N={calmo:1,normal:2,agitado:3};
 const SITE_WEAK=20,SITE_ERR=Math.PI/4;
-const sitesOn=()=>!!(ECO.marcos&&run&&run.mode==='camp'&&run.sites&&run.sites.length);
+const sitesOn=()=>!!(ECO.marcos&&run&&(run.mode==='camp'||infEco()/* [etapa-74] */)&&run.sites&&run.sites.length);
 // raio de faro: começa curto e cresce com a build; o escuro encurta (menos para os marcos que brilham)
 function siteR(s){const d=bDark();return (560+60*P.stage)*ps.vision*(ps.det||1)*(1-(SITES[s.k].lit?.1:.3)*Math.min(1,d/.6));}
 function genSites(){
- run.sites=[];if(!ECO.marcos||run.mode!=='camp')return;
+ run.sites=[];if(!ECO.marcos||!(run.mode==='camp'||infEco()/* [etapa-74] */))return;
  const R=RNG.ecoM,x=[];for(let i=0;i<12;i++)x.push(R()); // 12 sorteios sempre, para não deslocar o bioma seguinte
  const b=run.biome,n=Math.min(3,SITE_N[run.pf]||2),fav=cndOn()&&SITE_COND[run.cnd.id],l=SITE_BIO[b].slice(),ks=[];
  for(let i=0;i<n&&l.length;i++){
@@ -1487,7 +1512,7 @@ const TER_LEASH=320,TER_ZONE=600,TER_BOOST=30,TER_COMPT=20,TER_PW=1.5,TER_CW=3;
 const TER_P={normal:.4,agitado:.6},terP=()=>Math.min(.9,(TER_P[run.pf]||0)+(cndOn()&&run.cnd.id==='territorio'?.3:0));
 const hasAfx=(e,a)=>e.elite===a||e.el2===a;
 const terOn=()=>!!(ECO.alfa&&sitesOn());
-const terCan=()=>!!(ECO.alfa&&ECO.marcos&&run&&run.mode==='camp'&&(run.pf==='normal'||run.pf==='agitado')&&TER_BIO[run.biome]);
+const terCan=()=>!!(ECO.alfa&&ECO.marcos&&run&&(run.mode==='camp'||infEco()/* [etapa-74] */)&&(run.pf==='normal'||run.pf==='agitado')&&TER_BIO[run.biome]);
 const terSite=()=>{if(!terOn())return null;for(const s of run.sites)if(s.k==='territorio'&&!s.gone)return s;return null;};
 let TS=null,TPREY={}; // território com Alfa vivo (recalculado a cada quadro em terUpdate) e presas dele
 const TF={x:0,y:0};
@@ -1787,6 +1812,7 @@ function prepApply(e){
  else if(T.m==='ter'){const s=prepTer();res=s&&s.used?'ok':'nao';
   if(res==='ok'){if(T.atk==='slam')e.weak={slam:1};else{const l=e.atks.filter(a=>a!==T.atk);if(l.length>=2)e.atks=l;else e.weak={[T.atk]:1};}txt=T.ok;}}
  {const b=statB();if(b&&b.prep){const q=b.prep[b.prep.length-1];if(q&&q.id===id){q.res=res;q.t0=+time.toFixed(1);e.prepQ=q;}}}
+ if(res==='faminto')descobrir('faminto');else if(id==='ancestral'&&res==='ok')descobrir('ninhos');/* [etapa-72] */
  if(res&&res!=='nao'&&res!=='nada'){if(!META.prep)META.prep={};if(!META.prep[id]){META.prep[id]=1;codexDirty=true;}e.prep=res;}
  return txt;
 }
@@ -2027,6 +2053,7 @@ function dietActivate(k){
  if(k==='eremita'&&!(P.shield>0)){P.shield=1;o.cur.sh=1;}
  ps=S();banner={txt:D.ic+' ASSIMILAÇÃO: '+D.n+'! '+D.d.charAt(0).toUpperCase()+D.d.slice(1)+' por '+(D.f==='tr'?DIET_TR:DIET_ACU)+' s.',t:2.6};snd(620,.3,'triangle',.05,300,'event');
  if(!META.diet)META.diet={};if(!META.diet[k]){META.diet[k]=1;codexDirty=true;}
+ if(k==='aguaviva')descobrir('cnidas');/* [etapa-72] */
  const b=statB();if(b){b.dt=b.dt||{};b.dt[k]=(b.dt[k]||0)+1;}
 }
 function dietUpdate(dt){
@@ -2103,7 +2130,7 @@ function teiaHunt(e,dt,dPlayer){
  const L=PREY[e.k];let best=null,bd=TEIA_R;
  for(const o of enemies){if(o===e||o.dead||o.boss||o.elite||o.alfa||o.nest||o.mig||!L.includes(o.k)||o.hunted)continue;const d=Math.hypot(o.x-e.x,o.y-e.y);if(d<bd){bd=d;best=o;}}
  if(!best)return false;
- e.hunt=best;e.huntT=0;best.hunted=e;{const b=statB();if(b)b.tH=(b.tH||0)+1;}
+ e.hunt=best;e.huntT=0;best.hunted=e;{const b=statB();if(b)b.tH=(b.tH||0)+1;}descCaca(e,best);/* [etapa-72] */
  return false;
 }
 function teiaEnd(e,why){const q=e.hunt;if(q&&q.hunted===e)q.hunted=null;e.hunt=null;e.huntCd=TEIA_CD;const b=statB();if(b){b.tEnd=b.tEnd||{};b.tEnd[why]=(b.tEnd[why]||0)+1;}}
@@ -2114,6 +2141,7 @@ function teiaEat(e,q){
  e.fed=TEIA_FED;e.r*=1.1;e.baseR=e.r;e.spd*=.8;e.xp*=1.6;e.sq=1;
  if(popOn()){const o=popSync();o.half=o.half||{};o.half[q.k]=(o.half[q.k]||0)+1;if(o.half[q.k]>=2){o.half[q.k]=0;popKill(q);}} // regra 5: metade
  const b=statB();if(b){b.tE=b.tE||{};b.tE[e.k+'>'+q.k]=(b.tE[e.k+'>'+q.k]||0)+1;}
+ descRefeicao(e,q);/* [etapa-72] */
 }
 function teiaUnfeed(e){e.fed=0;e.r/=1.1;e.baseR=e.r;e.spd/=.8;}
 // presa escolhida foge do predador (true = vetor em TF)
@@ -2256,6 +2284,188 @@ function exuDraw(d){
  if(!d.eco)return;const T=RM?0:time;ctx.save();ctx.translate(d.x,d.y);ctx.setLineDash(RM?[]:[6,6]);ctx.lineDashOffset=-T*20;
  ctx.strokeStyle=HC?'#ffffff':`rgba(230,245,255,${.5+(d.eco.k>0?.3:0)})`;ctx.lineWidth=HC?3:2;ctx.beginPath();ctx.arc(0,0,ps.r*1.35,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.restore();
 }
+/* ================= [etapa-72] Descobertas ecológicas ================= */
+// Uma interação do ecossistema vista ou provocada pela 1ª vez (META.desc) acrescenta uma condição ao sorteio das descidas:
+// a condição com desc:<id> em CONDS (src/11a-ecologia.js) só entra em condList depois da descoberta. Variedade, não poder:
+// sem pérolas, sem bônus. O Códex de condições mostra o que falta descobrir.
+// Chave ECO.descobertas: desligada, nada é registrado e as condições trancadas ficam fora do sorteio (linha de base).
+// "Veja…" = aconteceu na tela: a refeição (enguia) ou o começo da caça, com predador e presa na tela (polvo e tubarão).
+// Na medição, polvo e tubarão comem peixinho só ~1 vez por partida e nunca na tela: o gatilho deles é a caça.
+const DESC={
+ cnidas:{ic:'🎐',n:'Cnidas',d:'Assimile as cnidas de uma água-viva.'},
+ enguia:{ic:'🐍',n:'Caçadora de Cardumes',d:'Veja uma enguia comer um peixinho ou plâncton.'},
+ faminto:{ic:'🍽️',n:'Fome de Chefe',d:'Faça um chefe chegar faminto à luta.'},
+ polvo:{ic:'🐙',n:'Emboscada nas Algas',d:'Veja um polvo caçar um peixinho.'},
+ tubarao:{ic:'🦈',n:'Topo da Cadeia',d:'Veja um tubarão caçar um peixinho.'},
+ ninhos:{ic:'🥚',n:'Berçário Vazio',d:'Destrua os dois ninhos do Caranguejo Ancestral.'},
+};
+const condLocked=c=>!!c.desc&&!(ECO.descobertas&&META.desc&&META.desc[c.desc]);
+function descobrir(id){
+ if(!ECO.descobertas||!DESC[id])return false;if(!META.desc)META.desc={};if(META.desc[id])return false;
+ META.desc[id]=1;saveMeta();const D=DESC[id],c=CONDS.find(q=>q.desc===id);
+ const onde=c?(c.b==null?'do '+BIOMES[c.min].name+' em diante':'em '+BIOMES[c.b].name):'';
+ toasts.push({txt:'🔎 Descoberta: '+D.ic+' '+D.n+'!'+(c?' Nova condição possível '+onde+': '+c.ic+' '+c.n+'.':''),t:6});snd(740,.35,'triangle',.05,300,'ui');
+ const b=statB();if(b)(b.desc||(b.desc=[])).push(id);
+ return true;
+}
+function descNaTela(x,y){const V=view();return x>V.x0&&x<V.x1&&y>V.y0&&y<V.y1;}
+// refeição da Teia Trófica (teiaEat)
+function descRefeicao(e,q){
+ if(!ECO.descobertas||e.k!=='enguia'||q.k!=='peixinho'&&q.k!=='plancton'||!descNaTela(q.x,q.y))return;
+ descobrir('enguia');
+}
+// começo de uma caça da Teia (teiaHunt): predador e presa na tela
+function descCaca(e,q){
+ if(!ECO.descobertas||q.k!=='peixinho'||e.k!=='polvo'&&e.k!=='tubarao'||!descNaTela(e.x,e.y)||!descNaTela(q.x,q.y))return;
+ descobrir(e.k);
+}
+// Códex de condições: o que falta para liberar
+function descCodex(c){if(!c.desc||!DESC[c.desc])return null;const D=DESC[c.desc];return META.desc&&META.desc[c.desc]?'🔎 '+D.ic+' '+D.n:null;}
+function descDica(c){if(!c.desc||!DESC[c.desc])return null;const D=DESC[c.desc];return META.desc&&META.desc[c.desc]?'🔎 '+D.ic+' '+D.n+': já pode aparecer nas descidas.':'🔎 Liberada por uma descoberta: '+D.d;}
+// [etapa-72] Memória do Predador (laboratório, Saber): na tela do bioma, a preparação dos chefes do próximo bioma
+function memoriaHTML(N){
+ if(!((META.up.memoria||0)>0)||!ECO.preparacao||typeof BOSS_PREP!=='object')return '';
+ const l=N.bosses.map((id,i)=>BOSS_PREP[id]?'<br>🧠 <b>'+BOSSES[id].name+'</b>'+(i===0?' (mini-chefe, só no ritmo Agitado)':' (chefe, menos no ritmo Calmo)')+': '+BOSS_PREP[id].dica:'').join('');
+ return l?'<div class="sub" style="font-size:15px;margin:4px 0 0">'+l.slice(4)+'</div>':'';
+}
+/* ================= História da partida ================= */
+// [etapa-73] Resumo narrativo (I5 do plano de enriquecimento). Na tela final da Campanha, uma linha por bioma contada
+// como história: caminho da descida, condição, ritmo, Alfa, marcos usados, chefes (e como chegaram), assimilações,
+// espécies que rarearam e descobertas. Só lê a telemetria que já existe em run.stat[b] (etapas 52 a 72): não sorteia
+// nada e não muda o jogo. Cada trecho só aparece com a chave ECO do sistema dele ligada.
+const HIST_MAX=2; // no máximo 2 itens por lista (marcos, assimilações, espécies, descobertas), para caber no celular
+const histArt=g=>g==='o'?'o':'a';
+const histList=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+const histLow=t=>t.charAt(0).toLowerCase()+t.slice(1);
+// chefe: gênero da Preparação; "Caranguejo", "Baiacu", "Polvo"… sem entrada ficam no masculino
+const histG=id=>(BOSS_PREP[id]&&BOSS_PREP[id].g)||'o';
+function histBoss(id,s,died){
+ const B=BOSSES[id];if(!B)return '';const g=histG(id),a=histArt(g),f=g==='a';
+ let how='';
+ if(ECO.preparacao&&s.prep){const q=s.prep.find(x=>x.id===id&&x.res);const T=BOSS_PREP[id];
+  if(q&&T){if(q.res==='faminto')how='chegou '+(f?'faminta':'faminto');
+   else if(q.res==='alimentado')how='chegou '+(f?'bem alimentada':'bem alimentado');
+   else if(q.res==='ok')how=T.m==='ter'?'perdeu o território':'ficou sem os ninhos';}}
+ if(ECO.coevo&&s.cv&&s.cv.id===id&&CV[s.cv.fam]){const C=CV[s.cv.fam];how=(how?how+' e ':'')+'veio '+(f?'adaptada':'adaptado')+' a você ('+C.ic+' '+C.n+')';}
+ if(died)return a.charAt(0).toUpperCase()+a.slice(1)+' '+B.name+' '+(how||'estava à sua espera');
+ return 'venceu '+a+' '+B.name+(how?', que '+how:'');
+}
+// trechos de um bioma (sem a cabeça). Cada trecho tem um peso; ficam os HIST_N mais importantes, na ordem em que aconteceram
+const HIST_N=4;
+function histParts(b,last){
+ const s=run.stat&&run.stat[b];if(!s)return [];const o=[],add=(w,t)=>{if(t)o.push({w,t,i:o.length});};
+ if(ECO.descidas&&ECO.conds){const r=(run.route||[]).find(x=>x.b===b);if(r&&ROTA_N[r.id])add(1,'desceu '+histLow(ROTA_N[r.id]));}
+ if(ECO.marcos&&s.mc){
+  if(ECO.alfa&&s.mc.some(q=>q.k==='territorio'&&q.al!=null))add(4,'derrotou o Alfa');
+  const u=s.mc.filter(q=>q.use!=null&&SITES[q.k]&&SITES[q.k].fam!=='ter'&&SITES[q.k].fam!=='nin').map(q=>histArt(SITES[q.k].g)+' '+SITES[q.k].n);
+  if(u.length)add(2,'usou '+histList([...new Set(u)].slice(0,HIST_MAX)));}
+ if(ECO.dieta&&s.dt){const d=Object.keys(s.dt).filter(k=>DIET[k]).slice(0,HIST_MAX).map(k=>DIET[k].ic+' '+DIET[k].n);if(d.length)add(3,'assimilou '+histList(d));}
+ if(ECO.descobertas&&s.desc){const d=[...new Set(s.desc)].filter(k=>DESC[k]&&!(k==='cnidas'&&ECO.dieta&&s.dt&&s.dt.aguaviva)/* já contada na assimilação */).slice(0,HIST_MAX).map(k=>DESC[k].ic+' '+DESC[k].n);if(d.length)add(4,'descobriu '+histList(d));}
+ if(ECO.pressao&&s.rare&&s.rare.length){const r=[...new Set(s.rare)].filter(k=>POP_TXT[k]).slice(0,HIST_MAX).map(k=>histLow(POP_TXT[k]).replace(/ rare(ou|aram)\.$/,''));
+  if(r.length)add(2,histList(r)+(r.length>1||/^(os|as) /.test(r[0])?' rarearam':' rareou'));}
+ const bd=s.bd?Object.keys(s.bd):[],plain=[],prep=[];
+ for(const id of bd){const t=histBoss(id,s,false);if(/, que /.test(t))prep.push(t);else if(t)plain.push(t.replace(/^venceu /,''));}
+ if(plain.length)add(3,'venceu '+histList(plain)); // vitórias sem preparação num trecho só
+ for(const t of prep)add(5,t);
+ if(last&&state==='over'){ // o chefe que estava na arena quando o jogador caiu
+  const be=enemies.find(e=>e.boss&&!e.dead&&!bd.includes(e.id));if(be)add(6,histBoss(be.id,s,true));
+  add(7,'a jornada parou aqui');}
+ return o.sort((a,c)=>c.w-a.w||a.i-c.i).slice(0,HIST_N).sort((a,c)=>a.i-c.i).map(x=>x.t);
+}
+function histHead(b){
+ const B=BIOMES[b],s=run.stat&&run.stat[b]||{},h=[B.ic+' '+B.name];
+ if(ECO.conds&&s.cnd&&COND_BY[s.cnd])h.push(COND_BY[s.cnd].ic+' '+COND_BY[s.cnd].n);
+ if(ECO.perfil&&s.pf&&PERFIS[s.pf])h.push(PERFIS[s.pf].n);
+ return h.join(' · ');
+}
+// linhas da história (texto puro: também serve aos testes e à medição)
+function histLines(){
+ if(!run||run.mode!=='camp'||!run.stat)return [];const out=[],n=Math.min(4,run.biome);
+ for(let b=0;b<=n;b++){const p=histParts(b,b===n);let t=p.join('; ');if(t)t=t.charAt(0).toUpperCase()+t.slice(1)+'.';out.push({h:histHead(b),t});}
+ return out;
+}
+function histHTML(){
+ const L=histLines();if(!L.length)return '';
+ return `<div class="hist" role="group" aria-label="A história desta partida"><ol>${L.map(l=>`<li><b>${l.h}</b>${l.t?': '+l.t:''}</li>`).join('')}</ol></div>`;
+}
+/* ================= Ecologia no Infinito ================= */
+// [etapa-74] Condições, ritmo e marcos no Infinito (Etapa 5 do plano de enriquecimento). Chave ECO.infinito.
+// Cada ciclo (cada passagem de bioma; no "Continuar no Infinito", que fica na Fossa, cada chefe principal vencido) sorteia
+// uma condição do bioma e um ritmo, sem tela de descida para não pausar o modo, e gera os marcos (com o Alfa) do mesmo jeito
+// que a Campanha. Faixa, HUD, selo da estirpe e pausa são os da Campanha (cndOn, pfOn e sitesOn valem aqui com a chave).
+// Ficam só na Campanha: descidas e recompensas, Preparação do Predador e Pressão Populacional.
+// A curva do Infinito (etapa 64) não muda: a condição só mexe em pesos de nascimento, eventos, escuro e afixos.
+// Sorteios: RNG.ecoI, 2 por ciclo sempre (condição e ritmo); os marcos usam RNG.ecoM e RNG.ecoA como na Campanha.
+// Com a chave desligada nada é sorteado e o Infinito é o da etapa 73.
+const infEco=()=>!!(ECO.infinito&&run&&run.mode==='inf');
+function infCond(){
+ const prev=run.pf;run.cnd=null;run.cndShow=0;run.pf=null;
+ if(run.sites&&run.sites.length)sitesEnd();run.sites=[];
+ for(const e of enemies)if(e.alfa)e.alfa=null; // o Alfa do ciclo anterior fica sem território (continua como elite)
+ if(!infEco())return;
+ const b=run.biome,x=RNG.ecoI(),y=RNG.ecoI();let c=null;
+ if(ECO.conds){const l=condList(b);if(l.length)c=l[Math.floor(x*l.length)];}
+ if(c)run.cnd=condObj(c,b);
+ if(ECO.perfil){const w={calmo:1,normal:2,agitado:prev==='agitado'?0:1},m=c&&PF_COND[c.id];if(m)for(const k in m)w[k]*=m[k];run.pf=pickW(w,()=>y);} // nunca dois Agitados seguidos
+ run.infCyc=(run.infCyc||0)+1;
+ if(c||run.pf){run.cndShow=3.2;const s=statB();if(s){s.cnd=c?c.id:null;s.pf=run.pf;(s.cyc||(s.cyc=[])).push({n:run.infCyc,cnd:s.cnd,pf:run.pf,t:+time.toFixed(0)});}}
+ run.evT*=evMul();
+ genSites();
+}
+/* ================= Covil (experimental) ================= */
+// [etapa-75] P7b do plano de enriquecimento: chamar o chefe antes. Só com o modificador de partida 📯 Covil (MODS, desligado
+// por padrão, sem bônus de pérolas no menu). Na fase antes de cada chefe (Campanha: antes do mini-chefe e do chefe;
+// Infinito: antes de cada chefe) aparece um covil a 600–800 px. Ficar COV_HOLD s dentro chama o chefe na hora, com pérolas
+// no fim da partida proporcionais ao tempo que ainda faltava no relógio. O cronômetro continua como teto.
+// A troca: chamar cedo rende pérolas e corta o tempo de caçar DNA (e de preparar o chefe, etapa 65).
+// Posição sem sorteio (ângulo de ouro a partir do número da onda): não usa nenhum gerador, então não desloca nada.
+// Telemetria em run.stat[b].cov: {ph, T0 (relógio quando o covil apareceu), use (relógio que sobrava ao usar, ou null)}.
+const COV_R=130,COV_HOLD=1.5,COV_MIN=15/* s mínimos no relógio para aparecer */,COV_K=6,COV_KB=3/* pérolas: f·(6 + 3·bioma), f = sobra/relógio inicial */;
+const COV_IC='📯';
+const covOn=()=>!!(run&&run.mods&&run.mods.covil&&!run.daily);
+const covWave=()=>run.mode==='camp'?(run.phase==='w1'||run.phase==='w2'):run.phase==='w';
+const covKey=()=>[run.biome,run.phase,run.bossCount||0,run.cleared||0,run.loop||0].join(':');
+const covBonus=c=>Math.max(1,Math.round(clamp(run.timer/c.T0,0,1)*(COV_K+COV_KB*Math.min(4,run.biome))));
+function covUpdate(dt){
+ if(!covOn())return;let c=run.cov;
+ const wave=covWave()&&!enemies.some(e=>e.boss&&!e.dead);
+ if(c&&(!wave||c.k!==covKey())){c.gone=1;run.cov=c=null;}
+ if(!c&&wave&&run.timer>COV_MIN&&run.covDone!==covKey()){
+  const n=(run.biome*7+(run.bossCount||0)*3+(run.cleared||0)*5+(run.phase==='w2'?1:0)+(run.loop||0)*11),a=n*2.39996,d=600+(n*37%200);
+  c=run.cov={k:covKey(),x:clamp(P.x+Math.cos(a)*d,200,WORLD-200),y:clamp(P.y+Math.sin(a)*d,200,WORLD-200),T0:run.timer,inT:0,t:0};run.covDone=c.k;
+  const b=statB();if(b){(b.cov||(b.cov=[])).push({ph:run.phase,T0:+c.T0.toFixed(1),use:null});c.st=b.cov[b.cov.length-1];}
+  toasts.push({txt:COV_IC+' Um covil apareceu: fique nele para chamar o chefe agora e ganhar pérolas.',t:4});
+ }
+ if(!c)return;c.t+=dt;
+ if(P.hp>0&&Math.hypot(P.x-c.x,P.y-c.y)<COV_R){c.inT+=dt;if(c.inT>=COV_HOLD)covCall(c);}
+ else c.inT=Math.max(0,c.inT-dt*2);
+}
+function covCall(c){
+ const p=covBonus(c);run.covP=(run.covP||0)+p;if(c.st)c.st.use=+run.timer.toFixed(1);
+ run.cov=null;run.timer=.001; // o laço do chefe o chama no próximo quadro
+ toasts.push({txt:COV_IC+' Você chamou o chefe! +'+p+' ⚪ no fim da partida.',t:3.5}); // aviso, não faixa: a faixa do chefe chega no quadro seguintesnd(180,.6,'sawtooth',.05,-60,'event');addShake(6);
+}
+function covDraw(){
+ const c=run&&run.cov;if(!c||!covOn())return;const v=view(),m=COV_R+80;if(c.x<v.x0-m||c.x>v.x1+m||c.y<v.y0-m||c.y>v.y1+m)return;
+ const T=RM?0:time,k=c.inT/COV_HOLD;
+ if(bDark())lights.push({x:c.x,y:c.y,r:COV_R+60,c:'255,120,90',a:.45});
+ ctx.save();ctx.translate(c.x,c.y);ctx.globalAlpha=Math.min(1,.35+c.t);
+ ctx.fillStyle='rgba(40,8,14,.45)';ctx.beginPath();ctx.arc(0,0,COV_R,0,TAU);ctx.fill();
+ ctx.setLineDash([14,10]);ctx.lineDashOffset=-T*30;ctx.strokeStyle=HC?'#ffffff':'rgba(255,120,90,.85)';ctx.lineWidth=HC?4:3;ctx.stroke();ctx.setLineDash([]);
+ if(k>0){ctx.strokeStyle='#ffd166';ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,0,COV_R-8,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();}
+ emojiAt(COV_IC,0,-6,40);
+ ctx.font='800 18px '+FONT_U;ctx.textAlign='center';ctx.fillStyle='#ffd166';ctx.strokeStyle='rgba(0,0,0,.75)';ctx.lineWidth=4;const t='+'+covBonus(c)+' ⚪';ctx.strokeText(t,0,34);ctx.fillText(t,0,34);
+ ctx.restore();
+}
+function covArrow(){
+ const c=run&&run.cov;if(!c||!covOn()||!P)return;const v=view();if(c.x>v.x0&&c.x<v.x1&&c.y>v.y0&&c.y<v.y1)return;
+ const a=Math.atan2(c.y-P.y,c.x-P.x),R2=ps.r+48;
+ ctx.save();ctx.translate(P.x+Math.cos(a)*R2,P.y+Math.sin(a)*R2);ctx.rotate(a);ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-6,-8);ctx.lineTo(-6,8);ctx.closePath();
+ ctx.fillStyle='rgba(255,120,90,.95)';ctx.strokeStyle=HC?'#ffffff':'rgba(10,14,24,.9)';ctx.lineWidth=HC?3:2;ctx.fill();ctx.stroke();ctx.restore();
+}
+// linha da pausa
+function covHTML(){if(!covOn())return '';const c=run.cov;
+ return `<div class="sub" style="font-size:15px">${COV_IC} <b>Covil</b>: ${c?`fique ${String(COV_HOLD).replace('.',',')} s dentro para chamar o chefe agora (+${covBonus(c)} ⚪ no fim).`:'aparece na fase antes de cada chefe.'}${run.covP?` Já ganhou ${run.covP} ⚪.`:''}</div>`;}
 /* ================= Input ================= */
 // [etapa-6] teclas remapeáveis: cada ação tem uma lista de teclas (a 1ª é a principal e pode ser trocada).
 // Esc, Tab e Enter são reservadas (voltar, navegar e confirmar).
@@ -2478,7 +2688,7 @@ function doAttack(a){
  }
  if(P.mut.cavita&&first){const R=38+8*P.mut.cavita,dm=ps.dmg*(.25+.15*P.mut.cavita),fx0=first.x,fy0=first.y;if(fx.length<40)fx.push({t:'ring',x:fx0,y:fy0,r:R,life:.22,max:.22,col:'190,240,255'});for(const o of enemies){if(o.dead)continue;if(Math.hypot(o.x-fx0,o.y-fy0)<R+o.r)damageEnemy(o,dm,Math.atan2(o.y-fy0,o.x-fx0),true);}snd(700,.06,'sine',.03,-500,'shot');} /* [etapa-44] */
  if(run.ev&&run.ev.type==='fumarola'&&run.ev.near&&(P.heatT||0)<=5&&first){const vx=first.x,vy=first.y;if(fx.length<40)fx.push({t:'ring',x:vx,y:vy,r:90,life:.24,max:.24,col:'255,155,90'});for(const o of enemies){if(o.dead)continue;if(Math.hypot(o.x-vx,o.y-vy)<90+o.r)damageEnemy(o,ps.dmg*.4,Math.atan2(o.y-vy,o.x-vx),true);}snd(520,.06,'sine',.03,-300,'shot');} /* [etapa-50] */
- if(P.spec==='bento'){if(fx.length<40)fx.push({t:'ring',x:P.x,y:P.y,r:140,life:.3,max:.3,col:'210,180,140'});for(const o of enemies){if(o.dead)continue;if(Math.hypot(o.x-P.x,o.y-P.y)<140+o.r){damageEnemy(o,ps.dmg*.35,Math.atan2(o.y-P.y,o.x-P.x),true);if(!o.boss)o.sismoT=1.5;}}addShake(2.5);snd(95,.1,'triangle',.04,-40,'hit');} /* [etapa-50] Sismo Bentônico */
+ if(P.spec==='bento'&&(P.sisN=(P.sisN||0)+1)%3===1){/* [etapa-71] sismo a cada 3 golpes (o 1º já sai) */if(fx.length<40)fx.push({t:'ring',x:P.x,y:P.y,r:140,life:.3,max:.3,col:'210,180,140'});for(const o of enemies){if(o.dead)continue;if(Math.hypot(o.x-P.x,o.y-P.y)<140+o.r){{const b=statB();if(b){b.sisN=(b.sisN||0)+1;b.sisD=(b.sisD||0)+Math.min(o.hp,ps.dmg*.35);}}/* [etapa-71] telemetria */damageEnemy(o,ps.dmg*.35,Math.atan2(o.y-P.y,o.x-P.x),true);if(!o.boss)o.sismoT=1.5;}}addShake(2.5);snd(95,.1,'triangle',.04,-40,'hit');} /* [etapa-50] Sismo Bentônico */
  if(ps.clava&&first){const R=45+15*ps.clava;fx.push({t:'ring',x:first.x,y:first.y,r:R,life:.25,max:.25,col:'255,93,138'});for(const o of enemies){if(o.dead||o===first)continue;if(Math.hypot(o.x-first.x,o.y-first.y)<R+o.r)damageEnemy(o,ps.dmg*.45,Math.atan2(o.y-first.y,o.x-first.x),true);}addHitstop(.05);addShake(4);} // [etapa-4]
  if(ps.snap){P.snapN=(P.snapN||0)+1;const sv=620*(ps.pis2?1.25:1);/* [etapa-46] */proj.push({src:'golpe'/* [etapa-52] */,det:!!ps.pis3&&P.snapN%4===0,x:P.x+Math.cos(a)*ps.r,y:P.y+Math.sin(a)*ps.r,vx:Math.cos(a)*sv,vy:Math.sin(a)*sv,life:.55,r:9+P.stage*2,dmg:ps.dmg*ps.snap,pierce:true,hitS:new Set(),snap:true});snd(1200,.05,'square',.04,-900,'shot');}
  forceCrit=false;P.mantoCrit=false; // [etapa-21] · [etapa-46]
@@ -2647,6 +2857,7 @@ addShake(10,true);addHitstop(.25,true);/* [etapa-4] */if(!e.mini){pendingPart++;
   banner={txt:'Chefe derrotado! ('+run.bossCount+')',t:2.5,big:1};
   // [etapa-1] S3 troca de bioma por temporizador de jogo preso a esta run (respeita pausa e não vaza para outra partida)
   if(!e.mini&&!run.stay){const nb=(run.biome+1)%5;if(nb===0)run.loop++;run.bSwap={t:1.5,nb};}
+  else if(!e.mini&&infEco())run.bSwap={t:1.5,nb:run.biome}; /* [etapa-74] na Fossa sem fundo, cada chefe principal abre um ciclo novo */
  }
 }
 // [etapa-14] origem do dano: nome da fonte, tipo do ataque, registro das 5 últimas e indicador direcional na borda
@@ -2761,7 +2972,7 @@ function startDash(ix,iy,il){
  P.charges--;P.dashBuf=0;P.dashT=.22*(ps.dashLen||1);/* [etapa-23] Remos: dash mais longo */
  if(il>.1){P.ddx=ix/il;P.ddy=iy/il;}else{P.ddx=Math.cos(P.ang);P.ddy=Math.sin(P.ang);}
  afDash();/* [etapa-61] Corrente */
- P.hit=new Set();P.sq=1;P.ghostT=0;P.dashKillRefund=false;
+ P.hit=new Set();P.sq=1;P.ghostT=0;P.dashKillRefund=false;{const b=statB();if(b)b.dsN=(b.dsN||0)+1;}/* [etapa-71] telemetria */if(P.spec==='portuno'){P.dfLeft=4;P.dfT=0;}/* [etapa-71] até 4 desvios por dash */
  /* [etapa-56] Pulso Sônico saiu do dash: agora é especial */
  if(ps.cef3){hazards.push({t:'tinta',x:P.x,y:P.y,r:110,life:2.5,max:2.5,cef:1});P.cefT=2.6;} /* [etapa-46] Kraken */
  /* [etapa-56] Tinta Camuflante saiu do dash: agora é especial */
@@ -2771,9 +2982,12 @@ function startDash(ix,iy,il){
  snd(300,.18,'sine',.06,600,'dash');
  fx.push({t:'ring',x:P.x,y:P.y,r:50,life:.25,max:.25,col:'127,240,230'});
 }
+/* [etapa-71] um pedaço da esteira desvia projéteis só se foi deixado durante o dash ou nos 0,4 s seguintes, enquanto essa janela
+   está aberta e ainda restam desvios (4 por dash). O resto da esteira só dá velocidade (+25%). */
+function wakeDf(z){return !!z.df&&(P.dashT>0||(P.dfT||0)>0)&&(P.dfLeft||0)>0;}
 function endDash(){
  P.inv=Math.max(P.inv,.12);
- if(P.spec==='portuno')P.wakeT=1.2;/* [etapa-50] Esteira Hidrodinâmica */
+ if(P.spec==='portuno'){P.wakeT=1.2;P.dfT=.4;}/* [etapa-50] Esteira Hidrodinâmica · [etapa-71] desvia só no dash e 0,4 s depois */
  if(P.mut.embalo)P.embT=2; // [etapa-19] Embalo
  if(P.mut.f_fantasma&&(P.fantCd||0)<=0){P.fant=1.5;P.fantHitT=2;P.fantCd=4;} // [etapa-21] Fantasma do Recife · [etapa-32] recarga de 4 s (evita invisibilidade permanente)
  if(ps.onda){const R=(80+ps.onda*35)*(P.mut.f_cometa?1.6:1),dm=ps.dmg*(.5+.3*ps.onda);
@@ -2900,7 +3114,7 @@ function update(dt){
  P.side=0;if(P.dodgeCd>0)P.dodgeCd-=dt; /* [etapa-43] */
  necroUpdate(dt);/* [etapa-45] */frenUpdate(dt);/* [etapa-47] */dietUpdate(dt);/* [etapa-67] */if(P.cefT>0)P.cefT-=dt;
  if(ps.vala&&Math.hypot(P.vx,P.vy)>40){P.valaT=(P.valaT||0)-dt;if(P.valaT<=0&&hazards.length<80){P.valaT=.35;hazards.push({t:'vala',x:P.x,y:P.y,r:22,life:3,max:3,slow:ps.vala,a:Math.atan2(P.vy,P.vx)});}} /* [etapa-46] Passo Escavador */
- if(P.spec==='portuno'&&(P.dashT>0||(P.wakeT||0)>0)){if(P.dashT<=0)P.wakeT=Math.max(0,P.wakeT-dt);if(Math.hypot(P.vx,P.vy)>30){P.wakeStepT=(P.wakeStepT||0)-dt;if(P.wakeStepT<=0&&hazards.length<80){P.wakeStepT=.04;hazards.push({t:'wake',x:P.x,y:P.y,r:30,life:1.2,max:1.2,a:Math.atan2(P.vy,P.vx)});}}} /* [etapa-50] Esteira */
+ if(P.spec==='portuno'&&(P.dashT>0||(P.wakeT||0)>0)){if(P.dashT<=0){P.wakeT=Math.max(0,P.wakeT-dt);P.dfT=Math.max(0,(P.dfT||0)-dt);}/* [etapa-71] */if(Math.hypot(P.vx,P.vy)>30){P.wakeStepT=(P.wakeStepT||0)-dt;if(P.wakeStepT<=0&&hazards.length<80){P.wakeStepT=.04;hazards.push({t:'wake',x:P.x,y:P.y,r:30,life:1.2,max:1.2,a:Math.atan2(P.vy,P.vx),df:P.dashT>0||(P.dfT||0)>0?1:0/* [etapa-71] */});}}} /* [etapa-50] Esteira */
  {const sp=Math.hypot(P.vx,P.vy);P.stillT=sp<18&&P.dashT<=0?(P.stillT||0)+dt:0;} /* [etapa-44] Carapaça Coralina */
  updateSpecials(dt); /* [etapa-56] especiais: recargas, Maré de Corais e Estalo Sônico */
  if(P.mut.quimio_s&&P.hp<P.max&&quimioZone()){healP('quimio',P.max*.012*P.mut.quimio_s*(run.ev&&(run.ev&&run.ev.type==='fumarola'&&run.ev.near)||siteNear('termal')?3:1)*dt);/* [etapa-52] · [etapa-59] Fonte Termal */P.quimioT=.3;}else if(P.quimioT>0)P.quimioT-=dt; /* [etapa-44/50] Quimiossíntese */
@@ -3102,7 +3316,7 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
  compact(proj,p=>p.life>0);DSRC=null;/* [etapa-52] */
  // projéteis inimigos
  for(const p of eproj){if(P.cefT>0&&inCef(p)){p.life=0;continue;}/* [etapa-46] */p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
-  if(!p.deflected&&P.spec==='portuno'){for(const z of hazards)if(z.t==='wake'&&Math.hypot(z.x-p.x,z.y-p.y)<30+p.r){p.deflected=1;const vx=p.vx,vy=p.vy;p.vx=-vy;p.vy=vx;p.a=Math.atan2(p.vy,p.vx);for(let i=0;i<3;i++)parts.push({x:p.x,y:p.y,vx:rand(-80,80),vy:rand(-80,80),life:.25,col:'#9ee8ff',r:2});break;}} /* [etapa-50] esteira desvia 90° */
+  if(!p.deflected&&P.spec==='portuno'){for(const z of hazards)if(z.t==='wake'&&wakeDf(z)/* [etapa-71] */&&Math.hypot(z.x-p.x,z.y-p.y)<30+p.r){p.deflected=1;P.dfLeft--;/* [etapa-71] */const vx=p.vx,vy=p.vy;p.vx=-vy;p.vy=vx;p.a=Math.atan2(p.vy,p.vx);{const b=statB();if(b){b.dfN=(b.dfN||0)+1;if(run.biome>=3)b.dfN45=(b.dfN45||0)+1;}}/* [etapa-71] telemetria */for(let i=0;i<3;i++)parts.push({x:p.x,y:p.y,vx:rand(-80,80),vy:rand(-80,80),life:.25,col:'#9ee8ff',r:2});break;}} /* [etapa-50] esteira desvia 90° */
   if(P.dashT>0&&ps.dashLen>1&&Math.hypot(P.x-p.x,P.y-p.y)<ps.r+p.r+10){p.life=0;P.cut++;for(let i=0;i<5;i++)parts.push({x:p.x,y:p.y,vx:rand(-120,120),vy:rand(-120,120),life:.3,col:'#bfe0ff',r:2});continue;} // [etapa-23] Remos: o dash corta projéteis
   if(ps.pDodge&&P.inv<=0&&P.dashT<=0&&!p.dodgeTried&&Math.hypot(P.x-p.x,P.y-p.y)<ps.r+p.r){p.dodgeTried=1;if(Math.random()<ps.pDodge){p.life=0;P.dodges++;texts.push({x:P.x,y:P.y-ps.r,txt:'ESQUIVA',col:'#e8e0c8',life:.8,s:1.05,vy:-50});continue;}} // [etapa-23] Olhos-Fantasma
   if(p.kind==='ink'&&p.life<2.2){p.life=0;hazards.push({t:'ink',x:p.x,y:p.y,r:75,life:4.5,max:4.5});}
@@ -3191,7 +3405,8 @@ hurtPlayer(e.dmg*(e.st==='go'||e.st==='charge'?1.3:e.k==='tubarao'?TUB.touch/* [
  condBanner(dt); // [etapa-57] faixa da condição depois da faixa do bioma
  popUpdate(dt); // [etapa-61] pressão de caça
  siteUpdate(dt);if(state!=='play')return; // [etapa-59] marcos do bioma
- if(run.bSwap){run.bSwap.t-=dt;if(run.bSwap.t<=0){const nb=run.bSwap.nb;run.bSwap=null;run.biome=nb;genDecor();banner={txt:BIOMES[nb].ic+' '+BIOMES[nb].name+(run.loop?' · Ciclo '+(run.loop+1):''),t:3,big:1};}}
+ covUpdate(dt); /* [etapa-75] Covil (modificador) */
+ if(run.bSwap){run.bSwap.t-=dt;if(run.bSwap.t<=0){const nb=run.bSwap.nb;run.bSwap=null;run.biome=nb;genDecor();banner={txt:BIOMES[nb].ic+' '+BIOMES[nb].name+(run.loop?' · Ciclo '+(run.loop+1):''),t:3,big:1};if(infEco())infCond();/* [etapa-74] */}}
  if(banner){banner.t-=dt;if(banner.t<=0)banner=null;}
  shake=Math.max(0,shake-dt*30);
  cam.x+=(P.x-cam.x)*Math.min(1,dt*6);cam.y+=(P.y-cam.y)*Math.min(1,dt*6);
@@ -4288,9 +4503,9 @@ function drawWorld(){
  if(HC)ctx.globalAlpha=.5; // [etapa-8] alto contraste: decoração a 50%
  for(const d of decor){const m=(d.h||d.r||40)+30;if(d.x<x0-m||d.x>x1+m||d.y<y0-m||d.y>y1+m+(d.h||0))continue;drawDecor(d,false);}
  ctx.globalAlpha=1;
- drawEvFloor();/* [etapa-48] */dispDraw();/* [etapa-69] */drawSites();/* [etapa-59] */
+ drawEvFloor();/* [etapa-48] */dispDraw();/* [etapa-69] */drawSites();/* [etapa-59] */covDraw();/* [etapa-75] */
  for(const z of hazards)if(z.t==='vala'){const a=Math.min(1,z.life/z.max*1.5),ca=Math.cos(z.a),sa=Math.sin(z.a);ctx.lineCap='round';ctx.beginPath();for(const sd of [-1,1]){const ox=-sa*sd*7,oy=ca*sd*7;ctx.moveTo(z.x+ox-ca*14,z.y+oy-sa*14);ctx.lineTo(z.x+ox+ca*14,z.y+oy+sa*14);}ctx.strokeStyle='rgba(60,40,20,'+(.35*a)+')';ctx.lineWidth=5;ctx.stroke();ctx.strokeStyle='rgba(255,235,200,'+(.3*a)+')';ctx.lineWidth=2;ctx.stroke();} /* [etapa-46] valas */
- for(const z of hazards)if(z.t==='wake'){const a=Math.min(1,z.life/z.max*1.5),ca=Math.cos(z.a),sa=Math.sin(z.a);ctx.fillStyle='rgba(127,240,230,'+(.12*a)+')';ctx.beginPath();ctx.arc(z.x,z.y,30,0,TAU);ctx.fill();ctx.lineCap='round';ctx.strokeStyle='rgba(160,250,245,'+(.45*a)+')';ctx.lineWidth=2;ctx.beginPath();for(const sd of [-1,1]){const ox=-sa*sd*14,oy=ca*sd*14;ctx.moveTo(z.x+ox-ca*12,z.y+oy-sa*12);ctx.lineTo(z.x+ox+ca*12,z.y+oy+sa*12);}ctx.stroke();} /* [etapa-50] esteira */
+ for(const z of hazards)if(z.t==='wake'){const a=Math.min(1,z.life/z.max*1.5),ca=Math.cos(z.a),sa=Math.sin(z.a),dv=wakeDf(z);/* [etapa-71] ciano = desvia; azul-acinzentado e traço fino = só velocidade (janela fechada ou desvios gastos) */ctx.fillStyle=(dv?'rgba(127,240,230,':'rgba(140,160,215,')+(.12*a)+')';ctx.beginPath();ctx.arc(z.x,z.y,30,0,TAU);ctx.fill();ctx.lineCap='round';ctx.strokeStyle=(dv?'rgba(160,250,245,':'rgba(175,190,235,')+((dv?.45:.3)*a)+')';ctx.lineWidth=dv?2:1.2;ctx.beginPath();for(const sd of [-1,1]){const ox=-sa*sd*14,oy=ca*sd*14;ctx.moveTo(z.x+ox-ca*12,z.y+oy-sa*12);ctx.lineTo(z.x+ox+ca*12,z.y+oy+sa*12);}ctx.stroke();} /* [etapa-50] esteira */
  for(const z of hazards)if(z.t==='tinta'){const a=Math.min(1,z.life/z.max*2);ctx.fillStyle=`rgba(255,111,216,${.18*a})`;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();ctx.strokeStyle=`rgba(255,111,216,${.5*a})`;ctx.lineWidth=2;ctx.stroke();}
  drawGunkAll(hazards.filter(z=>z.t==='gunk'));/* [etapa-41] */ // [etapa-27] rastro (pontos no modo daltônico)
  for(const z of hazards)if(z.t==='ink'){const a=Math.min(1,z.life/z.max*2);ctx.fillStyle=`rgba(20,10,40,${.55*a})`;for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(z.x+Math.cos(i*1.3+z.max)*z.r*.35,z.y+Math.sin(i*1.7)*z.r*.3,z.r*.65,0,TAU);ctx.fill();}}
@@ -4340,8 +4555,9 @@ function drawWorld(){
 }
 function drawTop(){ // por cima da escuridão: perigos, projéteis e textos
  drawSiteArrows(); // [etapa-59]
+ covArrow(); /* [etapa-75] */
  const VW=view(),vis=(x,y,m)=>x>VW.x0-m&&x<VW.x1+m&&y>VW.y0-m&&y<VW.y1+m; // [etapa-12] P8
- for(const z of hazards){if(z.t==='ink'||z.t==='tinta'||z.t==='gunk'||z.t==='vala'||!vis(z.x,z.y,z.r+10))continue;const k=1-z.delay/z.max;
+ for(const z of hazards){if(z.t==='ink'||z.t==='tinta'||z.t==='gunk'||z.t==='vala'||z.t==='wake'/* [etapa-71] a esteira do Pelágico era desenhada como zona de perigo vermelha */||!vis(z.x,z.y,z.r+10))continue;const k=1-z.delay/z.max;
   const col=z.t==='boom'?'255,138,61':z.t==='gulp'?'255,210,120'/* [etapa-66] */:'255,70,70';
   ctx.fillStyle=`rgba(${col},${.12+.12*k})`;ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();
   if(SETTINGS.colorblindPatterns){ctx.save();ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.clip();ctx.strokeStyle=`rgba(${col},.4)`;ctx.lineWidth=4;for(let d=-z.r*2;d<z.r*2;d+=16){ctx.beginPath();ctx.moveTo(z.x+d-z.r,z.y-z.r);ctx.lineTo(z.x+d+z.r,z.y+z.r);ctx.stroke();}ctx.restore();} // [etapa-8] listras além da cor
@@ -4541,8 +4757,16 @@ function drawHUD(){
   else{ctx.rect(ex-1.5,ey-1.5,3,3);}
   ctx.fill();}
  ctx.fillStyle=THEME.gold;ctx.beginPath();ctx.arc(mx2+P.x*sc,my2+P.y*sc,3.5,0,TAU);ctx.fill();
+ /* [etapa-73] estirpe dominante (I2): quando a condição fixa os afixos dos elites, um selo mostra quais. Abaixo do minimapa;
+    sem espaço ali (celular deitado, botões de toque logo abaixo), à esquerda dele; sem espaço também, dentro da borda de baixo dele */
+ if(cndOn()&&run.cnd.afx&&run.cnd.afx.length){const C=COND_BY[run.cnd.id],fz=Math.max(12,Math.round(13*s)),eh=fz+10;
+  ctx.font=`800 ${fz}px `+FONT_U;const t0=run.cnd.afx.map(k=>AFX[k].ic).join('')+' '+C.n.replace(/^Estirpe /,''),tw=Math.min(ctx.measureText(t0).width+20,ms*1.4);
+  const free=q=>q[1]+q[3]<=H-SAFE.b&&q[0]>=0&&!['panel','top','boss','touch','spec'].some(n=>R[n]&&rectsOverlap(R[n],q));
+  let q=[mx2,my2+ms+6,ms,eh];if(!free(q)){q=[mx2-tw-8,my2,tw,eh];if(!free(q))q=[mx2+4,my2+ms-eh-4,ms-8,eh];}
+  ctx.fillStyle=HC?'#02101c':'rgba(3,18,32,.85)';rr(q[0],q[1],q[2],q[3],eh/2);ctx.fill();ctx.strokeStyle=AFX[run.cnd.afx[0]].col;ctx.lineWidth=1.5;ctx.stroke();
+  ctx.textAlign='center';ctx.fillStyle=THEME.white;ctx.fillText(fitText(t0,q[2]-10),q[0]+q[2]/2,q[1]+eh/2+fz*.36);R.estirpe=q;}
  // ---- zona livre superior (abaixo do HUD) e inferior (acima de toque/barra do chefe)
- const topY=Math.max(R.panel[1]+R.panel[3],R.minimap[1]+R.minimap[3]/* [etapa-34] a pausa agora fica acima */,R.boss&&R.boss[1]<H/2?R.boss[1]+R.boss[3]:0,R.top?R.top[1]+R.top[3]:0)+10;
+ const topY=Math.max(R.panel[1]+R.panel[3],R.minimap[1]+R.minimap[3]/* [etapa-34] a pausa agora fica acima */,R.estirpe?R.estirpe[1]+R.estirpe[3]:0/* [etapa-73] */,R.boss&&R.boss[1]<H/2?R.boss[1]+R.boss[3]:0,R.top?R.top[1]+R.top[3]:0)+10;
  let botY=H-SAFE.b-14;if(isTouch)botY=Math.min(botY,touchTop);if(R.boss&&R.boss[1]>H/2)botY=Math.min(botY,R.boss[1]-8);if(!isTouch&&W>700)botY=Math.min(botY,H-SAFE.b-34);if(R.spec)botY=Math.min(botY,R.spec[1]-8);/* [etapa-56] */
  HUD_GEOM.topY=topY;HUD_GEOM.toastY=botY-36-8;
  // ---- faixa (banner): quebra de linha e redução até caber em 90% da largura; nunca sai da tela
@@ -4702,7 +4926,7 @@ function menu(){
  </div>
  <details class="dmods" ${modsOpen?'open':''}><summary>🎯 Desafio diário e modificadores${Object.keys(MODS_ON).length?' · '+Object.keys(MODS_ON).length+' ativo(s)':''}</summary>
   <div class="drow"><button class="tool" id="daily">🎯 Desafio de hoje</button><span class="small" id="drec">Infinito · Normal · mesmas cartas, partes e criaturas para todo mundo hoje${dailyBest()?' · seu melhor: '+fmt(dailyBest()):''}</span></div>
-  <div class="seg mods" role="group" aria-label="Modificadores (valem para Jogar)">${MODS.map(m=>`<button class="segb" data-mod="${m.id}" aria-pressed="${!!MODS_ON[m.id]}" title="${m.d}">${m.ic} ${m.n} +${m.b}%</button>`).join('')}</div>
+  <div class="seg mods" role="group" aria-label="Modificadores (valem para Jogar)">${MODS.map(m=>`<button class="segb" data-mod="${m.id}" aria-pressed="${!!MODS_ON[m.id]}" title="${m.d}">${m.ic} ${m.n} ${m.b?'+'+m.b+'%':'🧪'/* [etapa-75] experimental, sem bônus */}</button>`).join('')}</div>
   <div class="small" id="mdb" aria-live="polite"></div></details>
  <div class="tools mtools"><button class="tool" id="lab">🧪 Laboratório</button><button class="tool" id="achv">🏅 Conquistas ${nAch}/${ACHS.length}</button><button class="tool" id="codex">📖 Códex</button><button class="tool" id="opts">⚙️ Opções</button><button class="tool" id="how">❓ Como jogar</button><button class="tool" id="nov">📜 Novidades${novPendente()?'<span class="ndot" role="img" aria-label="tem novidade"></span>':''}</button>${FS.can()?'<button class="tool" id="fs" data-fs></button>':''}</div>
  ${store.get('carc_opts_seen')?'':'<div class="hint1">Ajuste conforto, áudio e controles em ⚙️ Opções</div>'}
@@ -4908,7 +5132,7 @@ function creatureImg(id,boss){if(_cimg[id])return _cimg[id];const S2=144,c=docum
 function codexItems(tab){
  if(tab==='c')return codexCreatures().map(o=>({key:o.id,seen:!!META.codex.c[o.id],n:o.n+(o.boss?(o.mini?' (mini-chefe)':' (chefe)'):''),img:()=>creatureImg(o.id,o.boss),txt:o.boss?'Chefe. Aparece no fim de um bioma.'+prepCodex(o.id)/* [etapa-65] */+cvCodex(o.id)/* [etapa-66] */:'Criatura do fundo do mar.',tag:[!o.boss&&META.rare&&META.rare[o.id]?'🐟 Rareou com a sua caça.':'',!o.boss?dietCodex(o.id):''/* [etapa-67] */].filter(Boolean).join(' '),/* [etapa-61] */fact:CODEX_FACT[o.id]}));
  if(tab==='m')return MUTS.map(m=>({key:m.id,seen:!!META.codex.m[m.id],n:m.n,ic:icH(m.ic),txt:m.d(1),tag:RAR[m.r].n,fact:CODEX_FACT['m_'+m.id]}));
- if(tab==='e')return CONDS.map(c=>({key:c.id,seen:!!META.codex.e[c.id],n:c.n,ic:c.ic,txt:c.f,tag:c.b==null?'Geral'+(c.min?' · a partir do bioma '+(c.min+1):''):BIOMES[c.b].ic+' '+BIOMES[c.b].name,fact:c.fav})); // [etapa-57]
+ if(tab==='e')return CONDS.map(c=>({key:c.id,seen:!!META.codex.e[c.id],n:c.n,ic:c.ic,txt:c.f,tag:(c.b==null?'Geral'+(c.min?' · a partir do bioma '+(c.min+1):''):BIOMES[c.b].ic+' '+BIOMES[c.b].name)+(descCodex(c)?' · '+descCodex(c):''),fact:c.fav,lock:descDica(c)/* [etapa-72] */})); // [etapa-57]
  return Object.keys(PARTS).map(id=>{const q=PARTS[id];return {key:id,seen:!!META.codex.p[id],n:q.n,img:()=>partImg(id,56),txt:SLOTS[q.slot].n+' · '+doAnimal(q.from)+'. '+q.d(1),fact:CODEX_FACT['p_'+id]};});}
 const CODEX_TABS=[{id:'c',n:'🐙 Criaturas'},{id:'m',n:'🧬 Mutações'},{id:'p',n:'🦀 Partes'},{id:'e',n:'🌡️ Condições'}/* [etapa-57] */];
 function codexCount(){const o={};for(const t of CODEX_TABS){const it=codexItems(t.id);o[t.id]=[it.filter(x=>x.seen).length,it.length];}return o;}
@@ -4916,7 +5140,7 @@ function codexScreen(focusTab){
  setState('menu');menuSub=true;const cnt=codexCount(),tot=cnt.c[0]+cnt.m[0]+cnt.p[0]+cnt.e[0],all=cnt.c[1]+cnt.m[1]+cnt.p[1]+cnt.e[1];/* [etapa-57] */
  const tabs=CODEX_TABS.map(tb=>`<button class="stab" role="tab" id="ctab-${tb.id}" aria-controls="cpan" aria-selected="${tb.id===codexTab}" tabindex="${tb.id===codexTab?0:-1}" data-tab="${tb.id}">${tb.n} ${cnt[tb.id][0]}/${cnt[tb.id][1]}</button>`).join('');
  const items=codexItems(codexTab).map(o=>{const pic=o.img?`<img class="pimg ${o.seen?'':'sil'}" src="${o.img()}" alt="" width="44" height="44">`:o.seen?o.ic:'❔';
-  return `<div class="item ${o.seen?'':'off'}"><div class="ic">${pic}</div><div class="tx"><b>${o.seen?o.n:'???'}</b>${o.seen?`${o.tag?`<span class="small">${o.tag}</span> `:''}${o.txt}<span class="cfact">💡 ${o.fact||CODEX_GENERIC}</span>`:'Ainda não encontrado.'}</div></div>`;}).join('');
+  return `<div class="item ${o.seen?'':'off'}"><div class="ic">${pic}</div><div class="tx"><b>${o.seen?o.n:'???'}</b>${o.seen?`${o.tag?`<span class="small">${o.tag}</span> `:''}${o.txt}<span class="cfact">💡 ${o.fact||CODEX_GENERIC}</span>`:(o.lock||'Ainda não encontrado.')/* [etapa-72] */}</div></div>`;}).join('');
  show(`<h2>📖 Códex</h2><div class="sub">${tot}/${all} registros · tudo o que você já viu nas partidas</div><div class="stabs" role="tablist" aria-label="Seções do Códex">${tabs}</div>${codexTab==='c'&&popRareN()?`<div class="sub" id="crare">🐟 ${popRareN()===1?'Você fez 1 espécie rarear.':'Você fez '+popRareN()+' espécies rarearem.'}</div>`:''/* [etapa-61] */}
  <div class="shop" role="tabpanel" id="cpan" aria-labelledby="ctab-${codexTab}">${items}</div><button class="btn alt" id="bk">Voltar</button>`);
  const tabEls=[...ov.querySelectorAll('.stab')];
@@ -5086,7 +5310,7 @@ function enterNextBiome(ch){/* [etapa-58] ch = descida escolhida */
  play();banner={txt:N.ic+' Bioma '+(nb+1)+' — '+N.name,t:3,big:1};
 }
 function continueInfinite(){
- run.mode='inf';run.cont=true;run.stay=true;run.phase='w';run.timer=60;run.bossCount=0;run.ev=null;run.evT=30;run.infStart=time;contGrant();/* [etapa-64] */P.hp=P.max;
+ run.mode='inf';run.cont=true;run.stay=true;run.phase='w';run.timer=60;run.bossCount=0;run.ev=null;run.evT=30;run.infStart=time;contGrant();/* [etapa-64] */P.hp=P.max;if(infEco())infCond();/* [etapa-74] a condição da Campanha dá lugar à do 1º ciclo */
  play();banner={txt:'♾️ A Fossa não tem fundo — sobreviva!',t:3,big:1};
 }
 function startRun(mode,diff,opt){newGame(mode,diff,opt);/* [etapa-31] */if(mode==='inf')contGrant();/* [etapa-64] Linhagem Antiga */play();if(!tipsOn()){closeTip();tipState.queue.length=0;} // [etapa-11]
@@ -5134,7 +5358,7 @@ function biomeClear(){
  /* [etapa-58] descidas: sorteadas uma vez por passagem */if(descOn()&&!(run.desc&&run.desc.nb===nb)){const l=rollDescidas(nb);run.desc=l.length>=2?{nb,l}:null;}const D=descOn()&&run.desc&&run.desc.nb===nb?run.desc.l:null;
  snd(523,.2,'triangle',.06,0,'ui');setTimeout(()=>snd(659,.3,'triangle',.06,0,'ui'),160);
  show(`<h2>${BIOMES[run.biome].ic} ${BIOMES[run.biome].name} concluído!</h2>${mapHTML(nb,nb)}
- <div class="sub">Próximo: <b style="color:#ffd166">${N.ic} ${N.name}</b><br>${N.desc}<br><span style="font-size:15px;opacity:.75">Mini-chefe: ${BOSSES[N.bosses[0]].name} · Chefe: ${BOSSES[N.bosses[1]].name}</span></div>
+ <div class="sub">Próximo: <b style="color:#ffd166">${N.ic} ${N.name}</b><br>${N.desc}<br><span style="font-size:15px;opacity:.75">Mini-chefe: ${BOSSES[N.bosses[0]].name} · Chefe: ${BOSSES[N.bosses[1]].name}</span></div>${memoriaHTML(N)/* [etapa-72] */}
  <div class="sub" style="font-size:15px">Sua vida será totalmente restaurada.</div>
  ${D?`<div class="sub" style="margin:6px 0 0"><b>Por onde descer?</b> Mesmo bioma, situações diferentes.</div><div class="rotas">${D.map(descidaHTML).join('')}</div>`:''}
  ${breakBoxHTML()}${D?'':'<button class="btn" id="dn" data-autofocus>Descer ⬇</button>'}`);
@@ -5239,7 +5463,7 @@ function wireBreakBox(){const b=$('#brk');if(!b)return;breakShownAt=sessionMin()
 function nearAchHTML(){const c=[['elites',P.elites,25],['glutao',P.eaten,200],['gigantes',META.bosses||0,10],['ascensao',P.asc,5]].filter(([id])=>!META.ach[id]).map(([id,v,mx])=>({a:ACHS.find(x=>x.id===id),v,mx,r:v/mx})).filter(o=>o.v>0).sort((a,b)=>b.r-a.r)[0];
  return c?`<div class="sub" style="font-size:17px">🎯 Quase lá: <b>${c.a.ic} ${c.a.n}</b> — ${Math.min(c.v,c.mx)}/${c.mx} (+${c.a.p} ⚪)</div>`:'';}
 function pauseGame(){if(codexDirty)saveMeta();/* [etapa-29] */setState('pause');
- show(`<h2>Pausado</h2><div class="chain">${partsIcons()}</div><div class="sub">${(P.spec&&SPECS[P.spec]?SPECS[P.spec].ic+' ':'')+mutantName()+(P.asc?' ★'+P.asc:'')} · ${run.mode==='camp'?'Campanha':'Infinito · 🌊 Correntes '+corrTxt()/* [etapa-64] */} · ${DIFFS[run.diff].ic} ${DIFFS[run.diff].name} · ⏱ partida ${fmt(time)} · sessão ${sessionMin()} min</div>${cndOn()?`<div class="sub" style="font-size:15px">Condição: ${COND_BY[run.cnd.id].ic} <b>${COND_BY[run.cnd.id].n}</b>. ${COND_BY[run.cnd.id].f}</div>`:''/* [etapa-57] */}${pfOn()||rwOn(run.rw)?`<div class="sub" style="font-size:15px">${pfOn()?`Ritmo: <b>${PERFIS[run.pf].n}</b>. ${PERFIS[run.pf].f}`:''}${pfOn()&&rwOn(run.rw)?'<br>':''}${rwOn(run.rw)?`Recompensa da descida: ${RECOMP[run.rw].ic} <b>${RECOMP[run.rw].n}</b>. ${RECOMP[run.rw].f}`:''}</div>`:''/* [etapa-58] */}${siteHTML()/* [etapa-59] */}${prepHTML()/* [etapa-65] */}${dietHTML()/* [etapa-67] */}${run.mode==='camp'?mapHTML(run.biome,run.biome):''}
+ show(`<h2>Pausado</h2><div class="chain">${partsIcons()}</div><div class="sub">${(P.spec&&SPECS[P.spec]?SPECS[P.spec].ic+' ':'')+mutantName()+(P.asc?' ★'+P.asc:'')} · ${run.mode==='camp'?'Campanha':'Infinito · 🌊 Correntes '+corrTxt()/* [etapa-64] */} · ${DIFFS[run.diff].ic} ${DIFFS[run.diff].name} · ⏱ partida ${fmt(time)} · sessão ${sessionMin()} min</div>${cndOn()?`<div class="sub" style="font-size:15px">Condição: ${COND_BY[run.cnd.id].ic} <b>${COND_BY[run.cnd.id].n}</b>. ${COND_BY[run.cnd.id].f}</div>`:''/* [etapa-57] */}${pfOn()||rwOn(run.rw)?`<div class="sub" style="font-size:15px">${pfOn()?`Ritmo: <b>${PERFIS[run.pf].n}</b>. ${PERFIS[run.pf].f}`:''}${pfOn()&&rwOn(run.rw)?'<br>':''}${rwOn(run.rw)?`Recompensa da descida: ${RECOMP[run.rw].ic} <b>${RECOMP[run.rw].n}</b>. ${RECOMP[run.rw].f}`:''}</div>`:''/* [etapa-58] */}${siteHTML()/* [etapa-59] */}${covHTML()/* [etapa-75] */}${prepHTML()/* [etapa-65] */}${dietHTML()/* [etapa-67] */}${run.mode==='camp'?mapHTML(run.biome,run.biome):''}
  <div class="row"><button class="btn alt" id="r" data-autofocus>Continuar</button><button class="btn alt" id="po">⚙️ Opções</button>${FS.can()?'<button class="btn alt" id="pfs" data-fs></button>':''}<button class="btn" id="q">Sair para o menu</button></div>
  ${buildHTML(true)}`); // [etapa-9] build completo, agrupado e com descrições; tempo de sessão aqui (não no HUD)
  {const brk=breakBoxHTML();if(brk){ov.querySelector('.panel h2').insertAdjacentHTML('afterend',brk);wireBreakBox();}} // [etapa-10]
@@ -5323,7 +5547,7 @@ function renderCards(){
 }
 function awardPearls(){
  const d=[1,1.5,2.2][run.diff];
- const parts2=[['Criaturas',P.kills*.1],['Elites',P.elites*1],['Chefes',P.bossK*12],['Biomas concluídos',(run.cleared||0)*15],['Tempo',mins()*2],['Descidas',run.rotaP||0]/* [etapa-58] */,['Correntes',run.mode==='inf'?Math.max(0,infM().m-10)*2:0]/* [etapa-63] Infinito longo: +2 por minuto depois dos 10 (provisório, a 64 calibra) */];
+ const parts2=[['Criaturas',P.kills*.1],['Elites',P.elites*1],['Chefes',P.bossK*12],['Biomas concluídos',(run.cleared||0)*15],['Tempo',mins()*2],['Descidas',run.rotaP||0]/* [etapa-58] */,['Covil',run.covP||0]/* [etapa-75] */,['Correntes',run.mode==='inf'?Math.max(0,infM().m-10)*2:0]/* [etapa-63] Infinito longo: +2 por minuto depois dos 10 (provisório, a 64 calibra) */];
  const mb=run.mods?modBonus(run.mods):0; // [etapa-31] bônus dos modificadores (teto de +100%)
  const total=Math.floor(parts2.reduce((a,b)=>a+b[1],0)*d*(1+mb));
  const delta=Math.max(0,total-(run.paid||0));run.paid=total;META.pearls+=delta;saveMeta();
@@ -5339,7 +5563,15 @@ function labPathHTML(r){ // linha da derrota no Infinito: camada aberta agora, m
  const L=infLayer();if(L<LAYERS.length)out.push(`🔒 Próxima camada aos ${LAYERS[L]} min no Infinito (seu recorde: ${Math.floor((META.infBest||0)/60)} min)`);
  return out.length?`<div class="sub labpath" style="font-size:15px">${out.join('<br>')}</div>`:'';}
 function partsIcons(){return Object.keys(SLOTS).map(sl=>P.parts[sl]?icH(PARTS[P.parts[sl].id].ic)+(P.parts[sl].lv>1?'<sup style="font-size:.45em;color:#ffd166">★'+P.parts[sl].lv+'</sup>':''):'<span style="opacity:.4">'+icon(sl)+'</span>').join(' ');} // [etapa-17] encaixe vazio com o ícone próprio (o emoji 🛡️/🦵/👁️ repetia itens)
-function statsHTML(){return `<div class="stats"><span>Modo</span><span>${run.mode==='camp'?'Campanha':'Infinito'} · ${DIFFS[run.diff].ic} ${DIFFS[run.diff].name}</span><span>Mutante</span><span>${mutantName()}${P.asc?' ★'+P.asc:''}</span><span>Partes</span><span>${partsIcons()}</span><span>Bioma</span><span>${BIOMES[run.biome].ic} ${BIOMES[run.biome].name}</span>${cndOn()?`<span>Condição</span><span title="${COND_BY[run.cnd.id].f}">${COND_BY[run.cnd.id].ic} ${COND_BY[run.cnd.id].n}</span>`:''/* [etapa-57] */}${run.mode==='camp'&&run.route&&run.route.length?`<span>Descidas</span><span>${routeTxt()}</span>`:''/* [etapa-58] */}<span>Nível</span><span>${P.level}</span><span>Tempo</span><span>${fmt(time)}</span><span>Criaturas derrotadas</span><span>${P.kills} (${P.elites} elites)</span><span>Chefes derrotados</span><span>${P.bossK}</span><span>Engolidas inteiras</span><span>${P.eaten}</span><span>Sessão</span><span>${sessionMin()} min</span></div>`;} // [etapa-10]
+function statsHTML(){return `<div class="stats"><span>Modo</span><span>${run.mode==='camp'?'Campanha':'Infinito'} · ${DIFFS[run.diff].ic} ${DIFFS[run.diff].name}</span><span>Mutante</span><span>${mutantName()}${P.asc?' ★'+P.asc:''}</span><span>Partes</span><span>${partsIcons()}</span><span>Bioma</span><span>${BIOMES[run.biome].ic} ${BIOMES[run.biome].name}</span>${cndOn()&&!histLines().length/* [etapa-73] a história já conta */?`<span>Condição</span><span title="${COND_BY[run.cnd.id].f}">${COND_BY[run.cnd.id].ic} ${COND_BY[run.cnd.id].n}</span>`:''/* [etapa-57] */}${run.mode==='camp'&&run.route&&run.route.length&&!histLines().length?`<span>Descidas</span><span>${routeTxt()}</span>`:''/* [etapa-58] */}<span>Nível</span><span>${P.level}</span><span>Tempo</span><span>${fmt(time)}</span><span>Criaturas derrotadas</span><span>${P.kills} (${P.elites} elites)</span><span>Chefes derrotados</span><span>${P.bossK}</span><span>Engolidas inteiras</span><span>${P.eaten}</span><span>Sessão</span><span>${sessionMin()} min</span></div>`;} // [etapa-10]
+// [etapa-73] história e estatísticas em duas abas na mesma área (a história aberta): as duas juntas não cabiam no celular
+function finalHTML(){const h=histHTML();if(!h)return statsHTML();
+ return `<div class="fimtab" role="tablist"><button class="sbtn on" role="tab" aria-selected="true" data-ft="h">📖 História</button><button class="sbtn" role="tab" aria-selected="false" data-ft="n">📊 Números</button></div><div class="fimp" data-fp="h">${h}</div><div class="fimp hide" data-fp="n">${statsHTML()}</div>`;}
+// topo, abas e botões: em pé, um embaixo do outro; deitado, a história numa coluna à direita
+function fimLayout(top,btns){if(!histLines().length)return top+statsHTML()+'<br>'+btns;
+ return `<div class="fim2"><div class="fimA">${top}</div><div class="fimB">${finalHTML()}</div><div class="fimC">${btns}</div></div>`;}
+function wireFinal(){for(const b of ov.querySelectorAll('[data-ft]'))b.onclick=()=>{for(const x of ov.querySelectorAll('[data-ft]')){const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-selected',on);}
+ for(const p of ov.querySelectorAll('[data-fp]'))p.classList.toggle('hide',p.dataset.fp!==b.dataset.ft);fitOverlay();};}
 function gameOver(){
  if(state!=='play')return;
  finishTutorial(); // [etapa-11]
@@ -5351,9 +5583,9 @@ function gameOver(){
  // [etapa-1] S7 a tela atrasada só abre se ainda for este mesmo game over
  const runRef=run;
  setTimeout(()=>{if(state!=='over'||run!==runRef)return;// [etapa-10] tom encorajador; mostra o que melhorou; três botões com o mesmo peso visual; sem contagem regressiva nem auto-início
- show(`<h2>A evolução continua</h2><div class="sub">Você foi devorado desta vez — mas seu DNA aprendeu algo.</div>${deathCauseHTML()}${rec}${pr}${labPathHTML(lr)/* [etapa-63] */}${nearAchHTML()}${breakBoxHTML()}${statsHTML()}<br>
- <div class="row"><button class="btn alt" id="again" data-autofocus>Jogar de novo</button><button class="btn alt" id="lb">🧪 Laboratório</button><button class="btn alt" id="mn">Menu</button></div>`);
- $('#again').onclick=()=>startRun(run.mode,run.diff,{daily:run.daily});$('#mn').onclick=menu;$('#lb').onclick=lab;wireBreakBox();},700); // [etapa-2/10]
+ show(fimLayout(`<h2>A evolução continua</h2><div class="sub">Você foi devorado desta vez — mas seu DNA aprendeu algo.</div>${deathCauseHTML()}${rec}${pr}${labPathHTML(lr)/* [etapa-63] */}${nearAchHTML()}${breakBoxHTML()}`,
+ `<div class="row"><button class="btn alt" id="again" data-autofocus>Jogar de novo</button><button class="btn alt" id="lb">🧪 Laboratório</button><button class="btn alt" id="mn">Menu</button></div>`));/* [etapa-73] */
+ $('#again').onclick=()=>startRun(run.mode,run.diff,{daily:run.daily});$('#mn').onclick=menu;$('#lb').onclick=lab;wireBreakBox();wireFinal();/* [etapa-73] */},700); // [etapa-2/10]
 }
 function win(){
  const infNew=!infOpen();/* [etapa-51] primeira vitória destrava o Infinito */
@@ -5363,12 +5595,11 @@ function win(){
  const k='carc2_camp_'+run.diff,prev=store.get(k);let nr=false;if(!prev||time<+prev){store.set(k,String(time));nr=true;}
  snd(523,.2,'triangle',.06,0,'ui');setTimeout(()=>snd(659,.2,'triangle',.06,0,'ui'),180);setTimeout(()=>snd(784,.4,'triangle',.06,0,'ui'),360);
  const pr=awardPearls();
- show(`<h1 style="font-size:clamp(36px,7vw,70px)">CARCINIZAÇÃO<br>COMPLETA</h1><div class="evo">${STAGES[P.stage].ic}</div>${mapHTML(5,-1)}<div class="sub">Você atravessou os 5 biomas e derrotou o Caranguejo Ancestral.${nr?'<br><b style="color:#ffd166">🏆 Novo recorde!</b>':''}${infNew?'<br><b class="infnew" role="status">♾️ Modo Infinito desbloqueado!</b>'/* [etapa-51] */:''}</div>
- ${pr}${nearAchHTML()}${breakBoxHTML()}${statsHTML()}<br>
- <div class="row"><button class="btn purple" id="inf" data-autofocus>♾️ Continuar no Infinito</button><button class="btn" id="again">Jogar de novo</button><button class="btn alt" id="mn">Menu</button></div>
- <div class="small">No Infinito, você mantém tudo o que conquistou e a dificuldade continua subindo até o fim.</div>`);
+ show(fimLayout(`<h1 style="font-size:clamp(36px,7vw,70px)">CARCINIZAÇÃO<br>COMPLETA</h1><div class="evo">${STAGES[P.stage].ic}</div>${mapHTML(5,-1)}<div class="sub">Você atravessou os 5 biomas e derrotou o Caranguejo Ancestral.${nr?'<br><b style="color:#ffd166">🏆 Novo recorde!</b>':''}${infNew?'<br><b class="infnew" role="status">♾️ Modo Infinito desbloqueado!</b>'/* [etapa-51] */:''}</div>
+ ${pr}${nearAchHTML()}${breakBoxHTML()}`,`<div class="row"><button class="btn purple" id="inf" data-autofocus>♾️ Continuar no Infinito</button><button class="btn" id="again">Jogar de novo</button><button class="btn alt" id="mn">Menu</button></div>
+ <div class="small">No Infinito, você mantém tudo o que conquistou e a dificuldade continua subindo até o fim.</div>`));/* [etapa-73] */
  // [etapa-2]
- $('#inf').onclick=continueInfinite;wireBreakBox(); // [etapa-10]
+ $('#inf').onclick=continueInfinite;wireBreakBox();wireFinal();/* [etapa-73] */ // [etapa-10]
  $('#again').onclick=()=>startRun(run.mode,run.diff,{daily:run.daily});$('#mn').onclick=menu;
 }
 
